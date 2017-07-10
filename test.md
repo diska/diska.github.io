@@ -16,8 +16,7 @@ Markdownは[解釈されるのか？](index.html)
 |餅鉄|エピオラトリー10000(あと9718個)|
 |リフトボウルダー||
 
-## レクシムブレード
-[http://wiki.ffo.jp/html/31314.html]
+[レクシムブレード](http://wiki.ffo.jp/html/31314.html)
 
 ----
 
