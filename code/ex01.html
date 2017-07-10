@@ -1,0 +1,38 @@
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<style>
+pre.code{
+	display: block;
+	background-color: white;
+	width:80%;
+	padding: 0.5em;
+}
+</style>
+<script src="ex01g.js" type="text/javascript"></script>
+<script src="ex01.js" type="text/javascript"></script>
+</head>
+<body id="body" style="background-color:red;" onload="test()">
+<pre id="vs2"class="code">
+attribute vec3 point;
+void main(void){
+	gl_PointSize=10.0;
+	gl_Position=vec4(point*.8, 1.0);
+}
+</pre>
+<pre id="fs2" class="code">
+precision mediump float;
+void main(void){
+	float x=gl_FragCoord.x / 250.0*2.0-1.0;
+	float y=gl_FragCoord.y / 250.0*2.0-1.0;
+	float len=sqrt(x*x+y*y);
+	float c=1.0/len*.01+.01;
+	if((abs(x)<0.8) && (abs(y)<0.8) ){
+		gl_FragColor=vec4(c/3., c/3., c*2., .5);
+	}else{		
+		gl_FragColor=vec4(vec3(0.0), .2);
+	}
+}
+</pre>
+</body>
+</html>
