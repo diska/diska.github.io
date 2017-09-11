@@ -1,4 +1,5 @@
 Title: trying github Pages
+Description: description
 ## test
 learning github pages.
 このページは練習用なので、内容には特に意味がありません。
@@ -6,3 +7,4 @@ learning github pages.
 + [md generated](test.html)
 + [file](junk/short01.html)
 + [file](junk/short04.html)
++ [file](junk/short04.1.html)
