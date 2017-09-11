@@ -1,0 +1,42 @@
+<canvas id="cnvs"/>
+<script>
+// これがライブラリ。
+var g;
+function getg(){return document.getElementById("cnvs").getContext("webgl")};
+function draw(){g.clearColor(1,.5,0,1);	g.clear(0x4000);}
+function anim(){draw();	window.requestAnimationFrame(anim);}
+function init(){return[
+	"void main(){gl_Position=vec4(0.0);}",
+	"void main(){gl_FragColor=vec4(0.5);}"]};
+function getp(src){
+	const FS=WebGLRenderingContext.FRAGMENT_SHADER;
+	var p=g.createProgram();
+	g.attachShader(p, cs(FS+1, src[0]));	g.attachShader(p, cs(FS+0, src[1]));
+	g.linkProgram(p);	console.log("link:"+g.getProgramInfoLog(p));
+	if(g.getProgramParameter(p, 0x8B82)){return p;}else{g.deleteProgram(p);}
+	function cs(t, src){
+		console.log(src);
+		var s=g.createShader(t);	g.shaderSource(s, src);
+		g.compileShader(s);console.log("compile("+t+"):"+g.getShaderInfoLog(s));
+		if(g.getShaderParameter(s, 0x8B81)){return s}else{g.deleteShader(s);}
+	}
+}
+function setb(id, data){
+	var loc=g.getAttribLocation(p, id);	g.enableVertexAttribArray(loc);
+	g.bindBuffer(g.ARRAY_BUFFER, g.createBuffer());
+	g.vertexAttribPointer(loc, 2, g.FLOAT, false, 0, 0);
+	g.bufferData(g.ARRAY_BUFFER, new Float32Array(data), 0x88E4);
+}
+// ここからユーザープログラム。
+init=function(){return[
+	"attribute vec2 s;void main(){gl_PointSize=8.;gl_Position=vec4(s,1.,1.);}",
+	"void main(){gl_FragColor=vec4(1.,1.,0.,1);}"]};
+var t=0;
+draw=function(){
+	t=((t+=.01)<Math.PI*2)?t:0;	var a=[0,0, Math.cos(t),0, 0,Math.sin(t),];
+	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
+	setb("s", a);	g.drawArrays(g.POINTS, 0, a.length/2);
+}
+g=getg();	var p=getp(init());	g.useProgram(p);
+anim();
+</script>

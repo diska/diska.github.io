@@ -6,3 +6,4 @@ learning github pages.
 + [file](junk/short01.html)
 + [file](junk/short04.html)
 + [file](junk/short04.1.html)
++ [file](junk/short06.html)
