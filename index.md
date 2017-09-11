@@ -1,5 +1,3 @@
-Title: trying github Pages
-Description: description
 ## test
 learning github pages.
 このページは練習用なので、内容には特に意味がありません。
