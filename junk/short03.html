@@ -1,0 +1,41 @@
+<canvas id="cnvs"/>
+<img id="img" src="4x4h.png">
+<script>
+var g;
+function getg(){return document.getElementById("cnvs").getContext("webgl")};
+function draw(){g.clearColor(1,.5,0,1);	g.clear(0x4000);}
+function anim(){draw();	window.requestAnimationFrame(anim);}
+function getp(src){
+	const FS=WebGLRenderingContext.FRAGMENT_SHADER;
+	var p=g.createProgram();
+	g.attachShader(p, cs(FS+1, src[0]));	g.attachShader(p, cs(FS+0, src[1]));
+	g.linkProgram(p);	console.log("link:"+g.getProgramInfoLog(p));
+	if(g.getProgramParameter(p, 0x8B82)){return p;}else{g.deleteProgram(p);}
+	function cs(t, src){
+		console.log(src);
+		var s=g.createShader(t);	g.shaderSource(s, src);
+		g.compileShader(s);console.log("compile("+t+"):"+g.getShaderInfoLog(s));
+		if(g.getShaderParameter(s, 0x8B81)){return s}else{g.deleteShader(s);}
+	}
+}
+function sett(id, image){
+	const TD=g.TEXTURE_2D, TW=g.TEXTURE_WRAP_S, TEDGE=g.CLAMP_TO_EDGE;
+	const TF=g.TEXTURE_MAG_FILTER, TN=g.NEAREST;
+	g.bindTexture(TD, g.createTexture());
+	g.texParameteri(TD, TW+0, TEDGE+0);	g.texParameteri(TD, TW+1, TEDGE+0);
+	g.texParameteri(TD, TF+0, TN+0);	g.texParameteri(TD, TF+1, TN+0);
+	g.texImage2D(TD, 0, g.RGBA, g.RGBA, g.UNSIGNED_BYTE, image);
+}
+//
+shad=[
+	`void main(){gl_PointSize=64.;gl_Position=vec4(vec3(0.),1.);}`,
+	`precision mediump float;
+uniform sampler2D t; void main(){gl_FragColor=texture2D(t, gl_PointCoord);}`];
+draw=function(){
+	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
+	g.drawArrays(g.POINTS, 0, 1);
+}
+g=getg();	var p=getp(shad);	g.useProgram(p);
+sett("t", document.getElementById("img"));
+anim();
+</script>
