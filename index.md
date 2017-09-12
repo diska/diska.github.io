@@ -1,10 +1,9 @@
 ## test
-learning github pages.
-このページは練習用なので、内容には特に意味がありません。
+このページはgithub pages練習用です。内容は特に意味がありません。
 + [md source](test.md)
 + [md generated](test.html)
 + [short prog](junk/short01.html)
++ [short prog attr](junk/short02.html)
 + [short prog texture](junk/short03.html)
-+ [anim](junk/short04.html)
-+ [file](junk/short04.1.html)
-+ [file](junk/short06.html)
++ [short prog anim](junk/short04.html)
++ [short prog anim+attr](junk/short06.html)
