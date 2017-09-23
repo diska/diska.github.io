@@ -1,13 +1,10 @@
-<canvas id="cnvs"></canvas>
+<canvas id="cnvs" width="512px" height="512px"></canvas>
 <script>
-var g;
-function getg(){return document.getElementById("cnvs").getContext("webgl")};
-function draw(){g.clearColor(1,.5,0,1);	g.clear(0x4000);}
-function anim(){draw();	window.requestAnimationFrame(anim);}
-function getp(src){
-	const FS=WebGLRenderingContext.FRAGMENT_SHADER;
+function getg(id){return document.getElementById(id).getContext("webgl")};
+function getp(g, src){
+	const FS=WebGLRenderingContext.FRAGMENT_SHADER, VS=FS+1;
 	var p=g.createProgram();
-	g.attachShader(p, cs(FS+1, src[0]));	g.attachShader(p, cs(FS+0, src[1]));
+	g.attachShader(p, cs(VS, src[0]));	g.attachShader(p, cs(FS+0, src[1]));
 	g.linkProgram(p);	console.log("link:"+g.getProgramInfoLog(p));
 	if(g.getProgramParameter(p, 0x8B82)){return p;}else{g.deleteProgram(p);}
 	function cs(t, src){
@@ -17,7 +14,7 @@ function getp(src){
 		if(g.getShaderParameter(s, 0x8B81)){return s}else{g.deleteShader(s);}
 	}
 }
-function sett(image){
+function sett(g, image){
 	const TD=g.TEXTURE_2D, TW=g.TEXTURE_WRAP_S, TEDGE=g.CLAMP_TO_EDGE;
 	const TF=g.TEXTURE_MAG_FILTER, TN=g.NEAREST;
 	g.bindTexture(TD, g.createTexture());
@@ -26,16 +23,21 @@ function sett(image){
 	g.texImage2D(TD, 0, g.RGBA, g.RGBA, g.UNSIGNED_BYTE, image);
 }
 //
-shad=[`
-attribute vec3 p;void main(){gl_PointSize=32.;gl_Position=vec4(p,1.);}`,
-	`precision mediump float;
-uniform sampler2D t;void main(){gl_FragColor=texture2D(t, gl_PointCoord);}`];
-draw=function(){
-	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
-	g.drawArrays(g.POINTS, 0,1);
-}
-g=getg();	var p=getp(shad);	g.useProgram(p);
-var img=document.createElement("img");
-run=function(){	sett(img);	anim();};
-img.addEventListener("load", run);img.src="8x8.png";
+const vs=`attribute vec3 p;void main(){
+	gl_PointSize=512.;gl_Position=vec4(p,1.);}`;
+const fs=`precision mediump float;uniform sampler2D t;void main(){
+	vec4 color=texture2D(t, gl_PointCoord);	gl_FragColor.rgba=color.rgba;}`;
+function prog(){
+	var g;
+	var draw=function(){
+		g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
+		g.drawArrays(g.POINTS, 0,1);
+	}
+	var anim=function(){draw();	//window.requestAnimationFrame(anim);
+	}
+	g=getg("cnvs");	var p=getp(g, [vs,fs]);	g.useProgram(p);
+	var img=document.createElement("img");
+	var run=function(){	sett(g, img);	anim();};
+	img.addEventListener("load", run);img.src="8x8.png";
+}	prog();
 </script>
