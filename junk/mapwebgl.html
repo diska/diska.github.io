@@ -1,0 +1,70 @@
+<textarea id="maptile" style="width:30em;height:10em"></textarea>
+<textarea id="fssrc" style="width:30em;height:10em"></textarea>
+<hr/><canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
+<script>
+const webgllib={
+getg:function (id){
+	return document.getElementById(id).getContext("webgl",{preserveDrawingBuffer:true})
+},
+getp:function (g, src){
+	const FS=WebGLRenderingContext.FRAGMENT_SHADER, VS=FS+1;
+	var p=g.createProgram();
+	g.attachShader(p, cs(VS, src[0]));	g.attachShader(p, cs(FS+0, src[1]));
+	g.linkProgram(p);	console.log("link:"+g.getProgramInfoLog(p));
+	if(g.getProgramParameter(p, 0x8B82)){return p;}else{g.deleteProgram(p);}
+	function cs(t, src){
+		console.log(src);
+		var s=g.createShader(t);	g.shaderSource(s, src);
+		g.compileShader(s);console.log("compile("+t+"):"+g.getShaderInfoLog(s));
+		if(g.getShaderParameter(s, 0x8B81)){return s}else{g.deleteShader(s);}
+	}
+},
+sett:function (g, p, id, data, unit){
+	const TD=g.TEXTURE_2D, TW=g.TEXTURE_WRAP_S, TEDGE=g.CLAMP_TO_EDGE;
+	const TU=g.TEXTURE0, TF=g.TEXTURE_MAG_FILTER, TN=g.NEAREST;
+	var loc=g.getUniformLocation(p, id);
+	g.uniform1i(loc, unit);	g.activeTexture(TU+unit);
+	g.bindTexture(TD, g.createTexture());
+	g.texParameteri(TD, TF+0, TN+0);	g.texParameteri(TD, TF+1, TN+0);
+	g.texParameteri(TD, TW+0, TEDGE+0);	g.texParameteri(TD, TW+1, TEDGE+0);
+	g.texImage2D(TD, 0, g.ALPHA, 8,8,0,g.ALPHA, g.UNSIGNED_BYTE, data);
+},
+};
+const l=webgllib;
+const VS=`attribute vec3 p;
+void main(){	gl_PointSize=250.;gl_Position=vec4(p,1.);}`;
+const FS=`precision mediump float;	uniform sampler2D map;
+void main(){gl_FragColor.rgba=texture2D(map, gl_PointCoord).aaaa;
+	gl_FragColor.gb=vec2(0);
+}`;
+//
+var t=document.getElementById("maptile");
+t.value=
+`0xff,0x00,0xff,0x00,0xff,0xff,0x00,0x00,
+0xff,0x00,0xff,0x00,0xff,0x00,0x00,0x00,
+0xff,0xff,0xff,0x00,0xff,0xff,0x00,0x00,
+0xff,0x00,0xff,0x00,0xff,0x00,0x00,0x00,
+0xff,0x00,0xff,0x00,0xff,0xff,0x00,0x00,
+0xff,0x00,0x00,0xff,0x00,0x00,0xff,0x00,
+0xff,0x00,0x00,0xff,0x00,0xff,0x00,0xff,
+0xff,0xff,0x00,0xff,0xff,0x00,0xff,0x00`;
+function prog(){
+	document.getElementById("fssrc").value=FS;
+	var g=l.getg("cnvs"), p=l.getp(g, [VS,FS]);	g.useProgram(p);
+	const compile=function(){
+		var fs=document.getElementById("fssrc").value;
+		p=l.getp(g, [VS,fs]);	g.useProgram(p);	run();
+	}
+	const draw=function(){
+		g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT|g.ALPHA_BIT);
+		g.drawArrays(g.POINTS, 0,1);
+	}
+	const run=function(){
+		var map=new Uint8Array(t.value.split(","));
+		l.sett(g, p, "map", map, 1);	draw();
+	};	run();
+	document.getElementById("fssrc").addEventListener("click", compile);
+	document.getElementById("cnvs").addEventListener("click", run);
+	document.getElementById("cnvs").style="background-color:black";
+};	prog();
+</script>
