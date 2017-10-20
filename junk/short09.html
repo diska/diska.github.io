@@ -1,0 +1,52 @@
+<textarea id="area" style="width:40em;height:8em;"></textarea><br/>write, then
+<hr/><canvas id="cnvs" width="256px" height="256px"></canvas><br/>click<hr/>
+<script>
+const getp=function(g, src, logsw){
+	const FS=g.FRAGMENT_SHADER,VS=g.VERTEX_SHADER;
+	var log=(logsw)?console.log:function(p){};
+	var p=g.createProgram(); 
+	g.attachShader(p, cs(VS, src[0]));	g.attachShader(p, cs(FS, src[1]));
+	g.linkProgram(p);	log("link:"+g.getProgramInfoLog(p));
+	if(g.getProgramParameter(p, 0x8B82)){return p;}else{g.deleteProgram(p);}
+	function cs(t, src){
+		log(src);
+		var s=g.createShader(t);	g.shaderSource(s, src);
+		g.compileShader(s);	log("compile("+t+"):"+g.getShaderInfoLog(s));
+		if(g.getShaderParameter(s, 0x8B81)){return s}else{g.deleteShader(s);}
+	}
+}
+const sett=function(g, p, id, data, unit){
+	const TD=g.TEXTURE_2D, TW=g.TEXTURE_WRAP_S, TEDGE=g.CLAMP_TO_EDGE;
+	const TU=g.TEXTURE0, TF=g.TEXTURE_MAG_FILTER, TN=g.NEAREST;
+	const loc=g.getUniformLocation(p, id);
+	g.uniform1i(loc, unit);	g.activeTexture(TU+unit);
+	g.bindTexture(TD, g.createTexture());
+	g.texParameteri(TD, TF+0, TN+0);	g.texParameteri(TD, TF+1, TN+0);
+	g.texParameteri(TD, TW+0, TEDGE+0);	g.texParameteri(TD, TW+1, TEDGE+0);
+	g.texImage2D(TD, 0, g.RGBA, 4,4,0,g.RGBA, g.UNSIGNED_BYTE, data);
+}
+//
+const CNVS=document.getElementById("cnvs");
+const AREA=document.getElementById("area");
+CNVS.style="background-color:black;";
+AREA.value=`0,0,0,0,255,255,255,127,255,255,255,127,0,0,0,0,
+255,255,255,127,0,0,0,0,0,0,0,0,255,255,255,127,
+255,255,255,127,0,0,0,0,0,0,0,0,255,255,255,127,
+0,0,0,0,255,255,255,127,255,255,255,127,0,0,0,0,`;
+//
+const vs=`attribute vec3 p;void main(){	gl_PointSize=250.;gl_Position=vec4(p,1.);}`;
+const fs=`precision mediump float;
+uniform sampler2D t;
+void main(){gl_FragColor=texture2D(t, gl_PointCoord);}`;
+function prog(){
+	const g=CNVS.getContext("webgl",{preserveDrawingBuffer:true});
+	const p=getp(g, [vs,fs]);	g.useProgram(p);
+	const run=function(){
+		var map=new Uint8Array(AREA.value.split(","));
+		sett(g, p, "t", map, 0);
+		g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT|g.ALPHA_BIT);
+		g.drawArrays(g.POINTS, 0,1);
+	};	run();
+	CNVS.addEventListener("click", run);
+}	prog();
+</script>
