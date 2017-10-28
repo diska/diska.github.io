@@ -1,14 +1,9 @@
-<canvas id="cnvs"/>
+<hr/><canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
 <script>
-// これがライブラリ。
-var g;
-function getg(){return document.getElementById("cnvs").getContext("webgl")};
-function draw(){g.clearColor(1,.5,0,1);	g.clear(0x4000);}
-function anim(){draw();	window.requestAnimationFrame(anim);}
-function getp(src){
-	const FS=WebGLRenderingContext.FRAGMENT_SHADER;
+const getp=function(g, src){
+	const FS=g.FRAGMENT_SHADER,VS=g.VERTEX_SHADER;
 	var p=g.createProgram();
-	g.attachShader(p, cs(FS+1, src[0]));	g.attachShader(p, cs(FS+0, src[1]));
+	g.attachShader(p, cs(VS, src[0]));	g.attachShader(p, cs(FS, src[1]));
 	g.linkProgram(p);	console.log("link:"+g.getProgramInfoLog(p));
 	if(g.getProgramParameter(p, 0x8B82)){return p;}else{g.deleteProgram(p);}
 	function cs(t, src){
@@ -18,14 +13,15 @@ function getp(src){
 		if(g.getShaderParameter(s, 0x8B81)){return s}else{g.deleteShader(s);}
 	}
 }
-// ここからユーザープログラム。
-shad=[
-`attribute float s;void main(){gl_PointSize=32.;gl_Position=vec4(vec3(s),1.);}`,
-`void main(){gl_FragColor=vec4(vec3(1.,1.,.3),1.);}`];
-draw=function(){
+//
+const CNVS=document.getElementById("cnvs");
+const vs=`attribute vec4 o;void main(){gl_PointSize=float(64);gl_Position=o;}`;
+const fs=`void main(){gl_FragColor=vec4(1);gl_FragColor.gb=gl_PointCoord;}`;
+const g=CNVS.getContext("webgl"), p=getp(g, [vs,fs]);
+const draw=function(){
+	g.useProgram(p);
 	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
 	g.drawArrays(g.POINTS, 0, 1);
-}
-g=getg();	var p=getp(shad);	g.useProgram(p);
-anim();
+	requestAnimationFrame(draw);
+};	requestAnimationFrame(draw);
 </script>
