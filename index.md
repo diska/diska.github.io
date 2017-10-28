@@ -5,5 +5,7 @@
 + [short prog](junk/short01.html)
 + [short prog attr](junk/short02.html)
 + [short prog texture](junk/short03.html)
++ [short prog texture gen](junk/short09.html)
 + [short prog anim](junk/short04.html)
 + [short prog anim+attr](junk/short06.html)
++ [tilemap](junk/mapwebgl.html)
