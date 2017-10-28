@@ -1,14 +1,6 @@
-<canvas id="cnvs"/>
+<hr/><canvas id="cnvs"></canvas><hr/>
 <script>
-// これがライブラリ。
-var g;
-function getg(){return document.getElementById("cnvs").getContext("webgl")};
-function draw(){g.clearColor(1,.5,0,1);	g.clear(0x4000);}
-function anim(){draw();	window.requestAnimationFrame(anim);}
-function init(){return[
-	"void main(){gl_Position=vec4(0.0);}",
-	"void main(){gl_FragColor=vec4(0.5);}"]};
-function getp(src){
+const getp=function(g, src){
 	const FS=WebGLRenderingContext.FRAGMENT_SHADER;
 	var p=g.createProgram();
 	g.attachShader(p, cs(FS+1, src[0]));	g.attachShader(p, cs(FS+0, src[1]));
@@ -21,22 +13,35 @@ function getp(src){
 		if(g.getShaderParameter(s, 0x8B81)){return s}else{g.deleteShader(s);}
 	}
 }
-function setb(id, data){
+const setb=function(g, p, id, data){
+	const ABUF=g.ARRAY_BUFFER, STAT=g.STATIC_DRAW;
 	var loc=g.getAttribLocation(p, id);	g.enableVertexAttribArray(loc);
-	g.bindBuffer(g.ARRAY_BUFFER, g.createBuffer());
+	g.bindBuffer(ABUF, g.createBuffer());
 	g.vertexAttribPointer(loc, 2, g.FLOAT, false, 0, 0);
-	g.bufferData(g.ARRAY_BUFFER, new Float32Array(data), 0x88E4);
+	g.bufferData(ABUF, new Float32Array(data), STAT);
+	g.bindBuffer(ABUF, null);
 }
-// ここからユーザープログラム。
-init=function(){return[
-	"attribute vec2 s;void main(){gl_PointSize=8.;gl_Position=vec4(s,1.,1.);}",
-	"void main(){gl_FragColor=vec4(1.,1.,0.,1);}"]};
-var t=0;
-draw=function(){
-	t=((t+=.01)<Math.PI*2)?t:0;	var a=[0,0, Math.cos(t),0, 0,Math.sin(t),];
-	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
-	setb("s", a);	g.drawArrays(g.POINTS, 0, a.length/2);
-}
-g=getg();	var p=getp(init());	g.useProgram(p);
-anim();
+//
+const CNVS=document.getElementById("cnvs");
+const g=CNVS.getContext("webgl",{preserveDrawingBuffer:true});
+const vs=`attribute vec3 s;
+void main(){gl_PointSize=8.;gl_Position=vec4(s,1.);}`;
+const fs=`precision mediump float;
+void main(){gl_FragColor=vec4(1.,1.,0.,1);}`;
+var mode=true;
+const chgmod=function(){mode=!mode;console.log(mode);};
+CNVS.addEventListener("click", chgmod);
+const run=function(){
+	var t=0, p=getp(g, [vs,fs]);	g.useProgram(p);
+	const draw=function(){
+		var a=[0,0, Math.cos(t),0, 0,Math.sin(t),];
+		var dm=(mode)?g.POINTS:g.TRIANGLES;
+		g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
+		setb(g, p, "s", a);	g.drawArrays(dm, 0, a.length/2);
+	}
+	const anim=function(){
+		t=((t+=.01)<Math.PI*2)?t:0;	draw();
+		window.requestAnimationFrame(anim);
+	};	anim();
+};	run();
 </script>

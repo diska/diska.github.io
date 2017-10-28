@@ -1,7 +1,6 @@
-<canvas id="cnvs" width="200px" height="100px"></canvas>
+<hr/><canvas id="cnvs" width="200px" height="100px"></canvas><hr/>
 <script>
-function getg(id){return document.getElementById(id).getContext("webgl")};
-function getp(g, src){
+const getp=function(g, src){
 	var log=function(p){}//console.log(p);
 	const FS=WebGLRenderingContext.FRAGMENT_SHADER;
 	var p=g.createProgram(); 
@@ -16,10 +15,11 @@ function getp(g, src){
 	}
 }
 //
-var g=getg("cnvs");
-function setp(x,y){
+const CNVS=document.getElementById("cnvs");
+const g=CNVS.getContext("webgl",{preserveDrawingBuffer:true});
+const setp=function(x,y){
 	var vs="attribute float a;void main(){gl_PointSize=20.0;gl_Position=vec4(vec2("+x+","+y+"),a,1);}";
-	var fs=`void main(){gl_FragColor=vec4(vec3(1.,1.,.3),1.);}`;
+	var fs=`void main(){gl_FragColor=vec4(1.0, 1.0, 0.3, 1.0);}`;
 	return(getp(g, [vs,fs]));
 }
 var p=[
@@ -33,5 +33,6 @@ var p=[
 function draw(){
 	g.clearColor(0,.3,0, 1);	g.clear(g.COLOR_BUFFER_BIT);
 	for(i=0;i<21;i++){g.useProgram(p[i]);g.drawArrays(g.POINTS, 0, 1);}
-};	draw();
+	requestAnimationFrame(draw);
+};	requestAnimationFrame(draw);
 </script>
