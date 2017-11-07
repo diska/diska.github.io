@@ -1,27 +1,10 @@
-<hr/><canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
+<hr/><canvas id="cnvs"></canvas><hr/>
 <script>
-const getp=function(g, src){
-	const FS=g.FRAGMENT_SHADER,VS=g.VERTEX_SHADER;
-	var p=g.createProgram();
-	g.attachShader(p, cs(VS, src[0]));	g.attachShader(p, cs(FS, src[1]));
-	g.linkProgram(p);	console.log("link:"+g.getProgramInfoLog(p));
-	if(g.getProgramParameter(p, 0x8B82)){return p;}else{g.deleteProgram(p);}
-	function cs(t, src){
-		console.log(src);
-		var s=g.createShader(t);	g.shaderSource(s, src);
-		g.compileShader(s);console.log("compile("+t+"):"+g.getShaderInfoLog(s));
-		if(g.getShaderParameter(s, 0x8B81)){return s}else{g.deleteShader(s);}
-	}
-}
-//
 const CNVS=document.getElementById("cnvs");
-const vs=`attribute vec4 o;void main(){gl_PointSize=float(64);gl_Position=o;}`;
-const fs=`void main(){gl_FragColor=vec4(1);gl_FragColor.gb=gl_PointCoord;}`;
-const g=CNVS.getContext("webgl"), p=getp(g, [vs,fs]);
-const draw=function(){
-	g.useProgram(p);
-	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
-	g.drawArrays(g.POINTS, 0, 1);
+const g=CNVS.getContext("webgl");
+function draw(now){
+	var time=now/1000, red=Math.sin(6.28*time)/2+0.5;
+	g.clearColor(red,0,0, 1);	g.clear(0x4000);
 	requestAnimationFrame(draw);
 };	requestAnimationFrame(draw);
 </script>
