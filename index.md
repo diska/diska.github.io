@@ -1,7 +1,5 @@
 ## test
 このページはgithub pages練習用です。内容は特に意味がありません。
-+ [md source](test.md)
-+ [md generated](test.html)
 + [short prog](junk/short01.html)
 + [short prog anim](junk/short02.html)
 + [short prog attr](junk/short03.html)
