@@ -1,3 +1,4 @@
+<h1>GLSL/WebGLShader/WebGLProgram</h1>
 <hr/><canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
 <script>
 const getp=function(g, src){
@@ -14,20 +15,13 @@ const getp=function(g, src){
 		if(g.getShaderParameter(s, CS)){return s}else{g.deleteShader(s);}
 	}
 }
-const vs=`attribute vec4 a;void main(){gl_PointSize=float(32);gl_Position=a;}`;
-const fs=`void main(){gl_FragColor=vec4(1);gl_FragColor.gb=gl_PointCoord;}`;
+const vs=`attribute vec4 a;void main(){gl_PointSize=float(64);gl_Position=a;}`;
+const fs=`void main(){gl_FragColor.rgba=vec4(gl_PointCoord.x,1,0,1);}`;
 const CNVS=document.getElementById("cnvs");
-const run=function(){
-	const g=CNVS.getContext("webgl"), p=getp(g, [vs,fs]);
-	g.useProgram(p);
-	const a=g.getAttribLocation(p,"a");
-	const setA=function(x,y,z,w){g.vertexAttrib4f(a, x,y,z,w);}
-	const draw=function(now){
-		var time=now/1000,x=Math.cos(time),y=Math.sin(time);
-		setA(x,y,0,1);
-		g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
-		g.drawArrays(g.POINTS, 0, 1);
-		requestAnimationFrame(draw);
-	};	requestAnimationFrame(draw);
-};	run();
+const g=CNVS.getContext("webgl"), p=getp(g, [vs,fs]); g.useProgram(p);
+const draw=function(now){
+	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
+	g.drawArrays(g.POINTS, 0, 1);
+	requestAnimationFrame(draw);
+};	requestAnimationFrame(draw);
 </script>

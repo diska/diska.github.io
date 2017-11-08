@@ -1,0 +1,39 @@
+<h1>WebGLTexture</h1>
+<hr/><canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
+<script>
+function getp(g, src){
+	const FS=WebGLRenderingContext.FRAGMENT_SHADER, VS=FS+1;
+	var p=g.createProgram();
+	g.attachShader(p, cs(VS, src[0]));	g.attachShader(p, cs(FS+0, src[1]));
+	g.linkProgram(p);	console.log("link:"+g.getProgramInfoLog(p));
+	if(g.getProgramParameter(p, 0x8B82)){return p;}else{g.deleteProgram(p);}
+	function cs(t, src){
+		console.log(src);
+		var s=g.createShader(t);	g.shaderSource(s, src);
+		g.compileShader(s);console.log("compile("+t+"):"+g.getShaderInfoLog(s));
+		if(g.getShaderParameter(s, 0x8B81)){return s}else{g.deleteShader(s);}
+	}
+}
+function sett(g, image){
+	const TD=g.TEXTURE_2D, TW=g.TEXTURE_WRAP_S, TEDGE=g.CLAMP_TO_EDGE;
+	const TF=g.TEXTURE_MAG_FILTER, TN=g.NEAREST;
+	g.bindTexture(TD, g.createTexture());
+	g.texParameteri(TD, TF+0, TN+0);	g.texParameteri(TD, TF+1, TN+0);
+	g.texParameteri(TD, TW+0, TEDGE+0);	g.texParameteri(TD, TW+1, TEDGE+0);
+	g.texImage2D(TD, 0, g.RGBA, g.RGBA, g.UNSIGNED_BYTE, image);
+}
+//
+const vs=`attribute vec3 p;void main(){
+	gl_PointSize=256.;gl_Position=vec4(p,1.);}`;
+const fs=`precision mediump float;uniform sampler2D t;void main(){
+	vec4 color=texture2D(t, gl_PointCoord);	gl_FragColor.rgba=color.rgba;}`;
+const g=document.getElementById("cnvs").getContext("webgl");
+const p=getp(g, [vs,fs]);	g.useProgram(p);
+const img=document.createElement("img");
+const draw=function(){
+	sett(g, img);
+	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
+	g.drawArrays(g.POINTS, 0,1);
+}
+img.addEventListener("load", draw);img.src="8x8.png";
+</script>
