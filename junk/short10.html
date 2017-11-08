@@ -1,0 +1,65 @@
+<hr/><canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
+<script>
+const getp=function(g, src, logsw){
+	const FS=g.FRAGMENT_SHADER,VS=g.VERTEX_SHADER;
+	var log=(logsw)?console.log:function(p){};
+	var p=g.createProgram(); 
+	g.attachShader(p, cs(VS, src[0]));	g.attachShader(p, cs(FS, src[1]));
+	g.linkProgram(p);	log("link:"+g.getProgramInfoLog(p));
+	if(g.getProgramParameter(p, 0x8B82)){return p;}else{g.deleteProgram(p);}
+	function cs(t, src){
+		log(src);
+		var s=g.createShader(t);	g.shaderSource(s, src);
+		g.compileShader(s);	log("compile("+t+"):"+g.getShaderInfoLog(s));
+		if(g.getShaderParameter(s, 0x8B81)){return s}else{g.deleteShader(s);}
+	}
+}
+const sett=function(g, p, id, data, unit){
+	const TD=g.TEXTURE_2D, TW=g.TEXTURE_WRAP_S, TEDGE=g.CLAMP_TO_EDGE;
+	const TU=g.TEXTURE0, TF=g.TEXTURE_MAG_FILTER, TN=g.NEAREST;
+	const loc=g.getUniformLocation(p, id);
+	g.uniform1i(loc, unit);	g.activeTexture(TU+unit);
+	g.bindTexture(TD, g.createTexture());
+//	g.generateMipmap(TD);
+	g.texParameteri(TD, TF+0, TN+0);	g.texParameteri(TD, TF+1, TN+0);
+	g.texParameteri(TD, TW+0, TEDGE+0);	g.texParameteri(TD, TW+1, TEDGE+0);
+	g.texImage2D(TD, 0, g.RGBA, g.RGBA, g.UNSIGNED_BYTE, data);
+}
+//
+const CNVS=document.getElementById("cnvs");
+CNVS.style="background-color:black;";
+const vs=`attribute vec3 p;void main(){	gl_PointSize=250.;gl_Position=vec4(p,1.);}`;
+const fs=`precision mediump float;	uniform vec3 l0;
+uniform sampler2D t0;	uniform sampler2D t1;
+void main(){
+	vec4 color0=texture2D(t0, gl_PointCoord);
+	vec4 color1=texture2D(t1, gl_PointCoord);
+	vec3 l=vec3(l0);
+	float light=dot(normalize(l), color1.rgb);
+	gl_FragColor=color0*light;
+	if(color1.b>=0.9)
+		gl_FragColor.rgb=vec3(0.0);
+}`;
+function prog(){
+	const img0=document.createElement("img");
+	const img1=document.createElement("img");
+	const g=CNVS.getContext("webgl",{preserveDrawingBuffer:true});
+	const p=getp(g, [vs,fs],true);	g.useProgram(p);
+	const run=function(){
+		sett(g, p, "t0", img0, 0);
+		sett(g, p, "t1", img1, 1);
+		function draw(now){
+			var time=now/1000*5;
+			var x=Math.cos(time)/2+.5, y=Math.sin(time)/2+.5;
+			g.uniform3f(g.getUniformLocation(p, "l0"), x, y, 1);
+			g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT|g.ALPHA_BIT);
+			g.drawArrays(g.POINTS, 0,1);
+			window.requestAnimationFrame(draw);
+		};	window.requestAnimationFrame(draw);
+	};
+	img0.addEventListener("load", run);
+	img1.addEventListener("load", run);
+	img0.src="monkey.png";
+	img1.src="monkey.png";
+}	prog();
+</script>
