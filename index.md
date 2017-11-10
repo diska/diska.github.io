@@ -7,4 +7,5 @@
 + [short prog texture](junk/short05.html)
 + [short prog texture gen](junk/short09.html)
 + [short prog anim+attr](junk/short06.html)
++ [short prog normal](junk/short10.html)([fixed](junk/short10.1.html))
 + [tilemap](tilemaps/mapwebgl.html)
