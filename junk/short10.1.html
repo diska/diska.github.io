@@ -15,14 +15,11 @@ const getp=function(g, src, logsw){
 	}
 }
 const sett=function(g, p, id, data, unit){
-	const TD=g.TEXTURE_2D, TW=g.TEXTURE_WRAP_S, TEDGE=g.CLAMP_TO_EDGE;
-	const TU=g.TEXTURE0, TF=g.TEXTURE_MAG_FILTER, TN=g.NEAREST;
+	const TD=g.TEXTURE_2D, TU=g.TEXTURE0, TF=g.TEXTURE_MAG_FILTER, TN=g.NEAREST;
 	const loc=g.getUniformLocation(p, id);
 	g.uniform1i(loc, unit);	g.activeTexture(TU+unit);
 	g.bindTexture(TD, g.createTexture());
-//	g.generateMipmap(TD);
 	g.texParameteri(TD, TF+0, TN+0);	g.texParameteri(TD, TF+1, TN+0);
-	g.texParameteri(TD, TW+0, TEDGE+0);	g.texParameteri(TD, TW+1, TEDGE+0);
 	g.texImage2D(TD, 0, g.RGBA, g.RGBA, g.UNSIGNED_BYTE, data);
 }
 //
@@ -37,8 +34,6 @@ void main(){
 	vec3 l=vec3(l0);
 	float light=dot(normalize(l), color1.rgb);
 	gl_FragColor=color0*light;
-	if(color1.b>=0.9)
-		gl_FragColor.rgb=vec3(0.0);
 }`;
 function prog(){
 	const img0=document.createElement("img");
@@ -49,9 +44,9 @@ function prog(){
 		sett(g, p, "t0", img0, 0);
 		sett(g, p, "t1", img1, 1);
 		function draw(now){
-			var time=now/1000*5;
-			var x=Math.cos(time)/2+.5, y=Math.sin(time)/2+.5;
-			g.uniform3f(g.getUniformLocation(p, "l0"), x, y, 1);
+			var time=now/1000*6.28;
+			var x=Math.cos(time/4), y=Math.sin(time/5),z=Math.sin(time/3);
+			g.uniform3f(g.getUniformLocation(p, "l0"), x, y, z);
 			g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT|g.ALPHA_BIT);
 			g.drawArrays(g.POINTS, 0,1);
 			window.requestAnimationFrame(draw);
