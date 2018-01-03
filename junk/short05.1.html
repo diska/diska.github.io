@@ -16,13 +16,13 @@ function getp(g, src){
 }
 function sett(g, image){
 	const TD=g.TEXTURE_2D;
-	const TS=g.TEXTURE_WRAP_S, TT=g.TEXTURE_WRAP_T, TE=g.CLAMP_TO_EDGE;
+//	const TS=g.TEXTURE_WRAP_S, TT=g.TEXTURE_WRAP_T, TE=g.CLAMP_TO_EDGE;
 	const TG=g.TEXTURE_MAG_FILTER,TN=g.TEXTURE_MIN_FILTER, T0=g.NEAREST;
 	g.bindTexture(TD, g.createTexture());
 	g.texImage2D(TD, 0, g.RGBA, g.RGBA, g.UNSIGNED_BYTE, image);
-	g.texParameteri(TD, TG, T0);	g.texParameteri(TD, TN, T0);
-	g.texParameteri(TD, TS, TE);	g.texParameteri(TD, TT, TE);
-//	g.generateMipmap(g.TEXTURE_2D);
+//	g.texParameteri(TD, TG, T0);	g.texParameteri(TD, TN, T0);
+//	g.texParameteri(TD, TS, TE);	g.texParameteri(TD, TT, TE);
+	g.generateMipmap(g.TEXTURE_2D);
 }
 //
 const vs=`attribute vec3 p;void main(){
