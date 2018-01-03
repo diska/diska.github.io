@@ -1,4 +1,5 @@
-雑多なメモとか学習用
+雑多なメモとかgithubとgithub Pagesの使い方の自習のためのプロジェクト。
+
 http://diska.github.io/
 
-これでPages使えるのかな。
+コンテンツもないのでWebGLの公開サンプル集として運用中。
