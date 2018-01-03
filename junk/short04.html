@@ -21,8 +21,9 @@ const CNVS=document.getElementById("cnvs");
 const g=CNVS.getContext("webgl"), p=getp(g, [vs,fs]); g.useProgram(p);
 const a=g.getAttribLocation(p,"a");
 const setA=function(x,y,z,w){g.vertexAttrib4f(a, x,y,z,w);}
+var time, x, y;
 const draw=function(now){
-	var time=now/1000,x=Math.cos(time),y=Math.sin(time);
+	time=now/1000, x=Math.cos(time), y=Math.sin(time);
 	setA(x,y,0,1);
 	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
 	g.drawArrays(g.POINTS, 0, 1);

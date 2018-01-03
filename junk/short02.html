@@ -3,8 +3,9 @@
 <script>
 const CNVS=document.getElementById("cnvs");
 const g=CNVS.getContext("webgl");
+var time, red;
 function draw(now){
-	var time=now/1000, red=Math.sin(6.28*time)/2+0.5;
+	time=now/1000, red=Math.sin(6.28*time)/2+0.5;
 	g.clearColor(red,0,0, 1);	g.clear(0x4000);
 	requestAnimationFrame(draw);
 };	requestAnimationFrame(draw);

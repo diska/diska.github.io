@@ -1,6 +1,6 @@
 ## test
 このサイトは「github pagesの利用の練習」を目的としています。
-コンテンツの内容は原則的に「手元にあったファイルをかき集めたもの」であり、特に一貫性がありません。
+コンテンツの内容は原則的に「手元にあったファイル(WebGL自習用)をかき集めたもの」であり、特に一貫性がありません。
 + [short prog](junk/short01.html)
 + [short prog anim](junk/short02.html)
 + [short prog shader](junk/short03.html)([Hello](junk/short08.html))
@@ -12,3 +12,8 @@
 + [tilemap](tilemaps/mapwebgl.html)
 
 [repos](https://github.com/diska/diska.github.io)
+
+todo: shader->uniformの順にして、attributeはどうしてもTRIANGLES/LINESを使いたい動機で初めて登場すべき？
+todo: 別プロジェクトにする？このまま？
+todo: sin()を「ずたぼろの解像度の手書き配列(+-Math.PIに対して10要素とか)で定義」してみる？
+todo: sin()をGLSLで？
