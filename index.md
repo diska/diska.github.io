@@ -3,7 +3,7 @@
 コンテンツの内容は原則的に「手元にあったファイルをかき集めたもの」であり、特に一貫性がありません。
 + [short prog](junk/short01.html)
 + [short prog anim](junk/short02.html)
-+ [short prog shader](junk/short03.html)
++ [short prog shader](junk/short03.html)[Hello](junk/short08.html)
 + [short prog attr](junk/short04.html)([no cls](junk/short04.1.html))
 + [short prog texture](junk/short05.html)([mipmap](junk/short05.1.html))
 + [short prog texture gen](junk/short09.html)
