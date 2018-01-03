@@ -13,7 +13,8 @@
 
 [repos](https://github.com/diska/diska.github.io)
 
-todo: shader->uniformの順にして、attributeはどうしてもTRIANGLES/LINESを使いたい動機で初めて登場すべき？
-todo: 別プロジェクトにする？このまま？
-todo: sin()を「ずたぼろの解像度の手書き配列(+-Math.PIに対して10要素とか)で定義」してみる？
-todo: sin()をGLSLで？
+----
+- todo: shader->uniformの順にして、attributeはどうしてもTRIANGLES/LINESを使いたい動機で初めて登場すべき？
+- todo: 別プロジェクトにする？このまま？
+- todo: sin()を「ずたぼろの解像度の手書き配列(+-Math.PIに対して10要素とか)で定義」してみる？
+- todo: sin()をGLSLで？
