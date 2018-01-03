@@ -11,4 +11,4 @@
 + [short prog normal](junk/short10.html)([white](junk/short10.1.html))
 + [tilemap](tilemaps/mapwebgl.html)
 
-[https://github.com/diska/diska.github.io](repos)
+[repos](https://github.com/diska/diska.github.io)
