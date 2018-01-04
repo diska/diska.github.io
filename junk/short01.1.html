@@ -1,0 +1,12 @@
+<h1>WebGLRenderingContext</h1>
+<hr/><canvas id="cnvs"></canvas><hr/>
+<input id="red" type="range" value="0"></input>
+<script>
+const c=document.getElementById("cnvs").getContext("webgl");
+const UI={};
+UI.r=document.getElementById("red");
+function update(){
+	c.clearColor(UI.r.value/100,.2,0,1);	c.clear(0x4000);
+};	update();
+UI.r.addEventListener("input", update);
+</script>
