@@ -1,20 +1,20 @@
 ## test
 このサイトは「github pagesの利用の練習」を目的としています。
 コンテンツの内容は原則的に「手元にあったファイル(WebGL自習用)をかき集めたもの」であり、特に一貫性がありません。
-+ [short prog context](junk/short01.html)([UI](junk/short01.1.html))
-+ [short prog anim](junk/short02.html)
-+ [short prog shader](junk/short03.html)([Hello](junk/short08.html))
-+ [short prog attr](junk/short04.html)([no cls](junk/short04.1.html))
-+ [short prog texture](junk/short05.html)([mipmap](junk/short05.1.html))
-+ [short prog texture gen](junk/short09.html)
-+ [short prog anim+attr](junk/short06.html)
-+ [short prog normal](junk/short10.html)([white](junk/short10.1.html))
++ [WebGLContext](junk/short01.html):[UI](junk/short01.1.html),[animation](junk/short02.html)
++ [WebGLShader](junk/short03.html):[Hello](junk/short08.html)
+----
++ [uniform](junk/short03.1.html)
++ [attritube](junk/short04.html):[no cls](junk/short04.1.html)
++ [texture](junk/short05.html):[mipmap](junk/short05.1.html),[generate](junk/short09.html)
++ [normal??](junk/short10.html)([white](junk/short10.1.html))
++ [polygon](junk/short06.html)
+----
 + [tilemap](tilemaps/mapwebgl.html)
 
 [repos](https://github.com/diska/diska.github.io)
 
 ----
-- todo: shader->uniformの順にして、attributeはどうしてもTRIANGLES/LINESを使いたい動機で初めて登場すべき？
 - todo: 別プロジェクトにする？このまま？
 - todo: sin()を「ずたぼろの解像度の手書き配列(+-Math.PIに対して10要素とか)で定義」してみる？
 - todo: sin()をGLSLで？
