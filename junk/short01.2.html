@@ -1,8 +1,7 @@
 <h1>requestAnimationFrame</h1>
 <hr/><canvas id="cnvs"></canvas><hr/>
 <script>
-const CNVS=document.getElementById("cnvs");
-const g=CNVS.getContext("webgl");
+const g=document.getElementById("cnvs").getContext("webgl");
 const getRed=function(time){return Math.sin(6.28*time)/2+0.5;}
 const draw=function(now){
 	var red=getRed(now/1000); // 0to1
