@@ -17,11 +17,10 @@ const getp=function(g, src){
 }
 const vs=`attribute vec4 a;void main(){gl_PointSize=float(64);gl_Position=a;}`;
 const fs=`void main(){gl_FragColor.rgba=vec4(gl_PointCoord.x,1,0,1);}`;
-const CNVS=document.getElementById("cnvs");
-const g=CNVS.getContext("webgl"), p=getp(g, [vs,fs]); g.useProgram(p);
-const draw=function(now){
+const g=document.getElementById("cnvs").getContext("webgl");
+const p=getp(g, [vs,fs]); g.useProgram(p);
+const draw=function(){
 	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
 	g.drawArrays(g.POINTS, 0, 1);
-	requestAnimationFrame(draw);
-};	requestAnimationFrame(draw);
+};	draw();
 </script>

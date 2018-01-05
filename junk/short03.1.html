@@ -1,6 +1,6 @@
 <h1>uniform</h1>
 <hr/><canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
-<hr/><input id="size" type="range" value="0"></input><hr/>
+<input id="size" type="range" value="0"></input>
 <script>
 const getp=function(g, src){
 	const FS=g.FRAGMENT_SHADER,VS=g.VERTEX_SHADER;
@@ -18,13 +18,13 @@ const getp=function(g, src){
 }
 const vs=`uniform float sz;attribute vec4 a;void main(){gl_PointSize=float(sz);gl_Position=a;}`;
 const fs=`void main(){gl_FragColor.rgba=vec4(gl_PointCoord.x,1,0,1);}`;
-const CNVS=document.getElementById("cnvs");
-const g=CNVS.getContext("webgl"), p=getp(g, [vs,fs]); g.useProgram(p);
-const UI={	s:document.getElementById("size"),};
+const g=document.getElementById("cnvs").getContext("webgl");
+const p=getp(g, [vs,fs]); g.useProgram(p);
+const UI={	size:document.getElementById("size"),};
 const draw=function(){
-	g.uniform1f(g.getUniformLocation(p, "sz"), UI.s.value);
+	g.uniform1f(g.getUniformLocation(p, "sz"), UI.size.value);
 	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
 	g.drawArrays(g.POINTS, 0, 1);
 };	draw();
-UI.s.addEventListener("input", draw);
+UI.size.addEventListener("input", draw);
 </script>
