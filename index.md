@@ -1,7 +1,7 @@
 ## test
 このサイトは「github pagesの利用の練習」を目的としています。
 コンテンツの内容は原則的に「手元にあったファイル(WebGL自習用)をかき集めたもの」であり、特に一貫性がありません。
-+ [short prog](junk/short01.html)
++ [short prog context](junk/short01.html)([UI](junk/short01.1.html))
 + [short prog anim](junk/short02.html)
 + [short prog shader](junk/short03.html)([Hello](junk/short08.html))
 + [short prog attr](junk/short04.html)([no cls](junk/short04.1.html))
