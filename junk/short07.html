@@ -1,0 +1,48 @@
+<h1>array buffer/polygon</h1>
+<hr/><canvas id="cnvs"></canvas>click!<hr/>
+<script>
+const getp=function(g, src){
+	const FS=g.FRAGMENT_SHADER, VS=g.VERTEX_SHADER;
+	var p=g.createProgram();
+	g.attachShader(p, cs(VS, src[0]));	g.attachShader(p, cs(FS, src[1]));
+	g.linkProgram(p);	console.log("link:"+g.getProgramInfoLog(p));
+	if(g.getProgramParameter(p, 0x8B82)){return p;}else{g.deleteProgram(p);}
+	function cs(t, src){
+		console.log(src);
+		var s=g.createShader(t);	g.shaderSource(s, src);
+		g.compileShader(s);console.log("compile("+t+"):"+g.getShaderInfoLog(s));
+		if(g.getShaderParameter(s, 0x8B81)){return s}else{g.deleteShader(s);}
+	}
+}
+const ATTR=function(g,p,id,size,type=0x1406,normalized=false,stride=0,offset=0){
+	this.g=g, this.p=p;
+	var indx=this.g.getAttribLocation(p, id);	this.g.enableVertexAttribArray(indx);
+	this.buf=g.createBuffer();
+	this.g.bindBuffer(this.g.ARRAY_BUFFER, this.buf);
+	this.g.vertexAttribPointer(indx,size,type,normalized,stride,offset);
+	this.g.bindBuffer(this.g.ARRAY_BUFFER, null);
+};
+ATTR.prototype.upload=function(data){
+	this.g.bindBuffer(this.g.ARRAY_BUFFER, this.buf);
+	this.g.bufferData(this.g.ARRAY_BUFFER, data, this.g.STATIC_DRAW);
+	this.g.bindBuffer(this.g.ARRAY_BUFFER, null);
+}
+const vs=`attribute vec4 s;void main(){gl_PointSize=float(8);gl_Position=s;}`;
+const fs=`void main(){gl_FragColor=vec4(1);gl_FragColor.b=float(0);}`;
+const CNVS=document.getElementById("cnvs");
+const g=CNVS.getContext("webgl",{preserveDrawingBuffer:true});
+var p=getp(g, [vs,fs]), s=new ATTR(g,p,"s",2);
+g.useProgram(p);
+//
+var abuf=new Float32Array(3*2);	abuf.set([0,0], 0);
+var mode=true;
+const draw=function(now){
+	var t=now/1000, dm=(mode)?g.POINTS:g.TRIANGLES;
+	abuf.set([Math.cos(t),0],2);	abuf.set([0,Math.sin(t)],4);	s.upload(abuf);
+	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
+	g.drawArrays(dm, 0, abuf.length/2);
+	requestAnimationFrame(draw);
+};	requestAnimationFrame(draw);
+const chgmod=function(){mode=!mode;console.log(mode);};
+CNVS.addEventListener("click", chgmod);
+</script>
