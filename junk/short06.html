@@ -14,35 +14,36 @@ const getp=function(g, src){
 		if(g.getShaderParameter(s, 0x8B81)){return s}else{g.deleteShader(s);}
 	}
 }
-const setb=function(g, p, id, data){
-	const ABUF=g.ARRAY_BUFFER, STAT=g.STATIC_DRAW;
+const getb=function(g, p, id, size, type=g.FLOAT, normalized=false, stride, offset){
 	var loc=g.getAttribLocation(p, id);	g.enableVertexAttribArray(loc);
-	g.bindBuffer(ABUF, g.createBuffer());
-	g.vertexAttribPointer(loc, 2, g.FLOAT, false, 0, 0);
-	g.bufferData(ABUF, new Float32Array(data), STAT);
-	g.bindBuffer(ABUF, null);
+	var buf=g.createBuffer();
+	g.bindBuffer(g.ARRAY_BUFFER, buf);
+	g.vertexAttribPointer(loc, size, type, normalized, stride, offset);
+	g.bindBuffer(g.ARRAY_BUFFER, null);
+	return buf;
 }
-//
+const upload=function(g, p, buf, data, usage=g.STATIC_DRAW){
+	g.bindBuffer(g.ARRAY_BUFFER, buf);
+	g.bufferData(g.ARRAY_BUFFER, data, usage);
+	g.bindBuffer(g.ARRAY_BUFFER, null);
+}
+const vs=`attribute vec4 pos;void main(){gl_PointSize=float(8);gl_Position=vec4(pos);}`;
+const fs=`void main(){gl_FragColor=vec4(1);gl_FragColor.b=float(0);}`;
 const CNVS=document.getElementById("cnvs");
 const g=CNVS.getContext("webgl",{preserveDrawingBuffer:true});
-const vs=`attribute vec3 s;
-void main(){gl_PointSize=8.;gl_Position=vec4(s,1.);}`;
-const fs=`precision mediump float;
-void main(){gl_FragColor=vec4(1.,1.,0.,1);}`;
-var mode=true;
+var p=getp(g, [vs,fs]);	g.useProgram(p);
+var mode=true, dm;
+var abuf=new Float32Array(6);
+var pAttrPos=getb(g, p, "pos",2);
+const draw=function(now){
+	var t=now/1000;
+	abuf.set([0,0, Math.cos(t),0, 0,Math.sin(t),]);
+	upload(g, p, pAttrPos, abuf);
+	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
+	dm=(mode)?g.POINTS:g.TRIANGLES;
+	g.drawArrays(dm, 0, abuf.length/2);
+	requestAnimationFrame(draw);
+};	requestAnimationFrame(draw);
 const chgmod=function(){mode=!mode;console.log(mode);};
 CNVS.addEventListener("click", chgmod);
-const run=function(){
-	var t=0, p=getp(g, [vs,fs]);	g.useProgram(p);
-	const draw=function(){
-		var a=[0,0, Math.cos(t),0, 0,Math.sin(t),];
-		var dm=(mode)?g.POINTS:g.TRIANGLES;
-		g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
-		setb(g, p, "s", a);	g.drawArrays(dm, 0, a.length/2);
-	}
-	const anim=function(){
-		t=((t+=.01)<Math.PI*2)?t:0;	draw();
-		window.requestAnimationFrame(anim);
-	};	anim();
-};	run();
 </script>

@@ -31,14 +31,14 @@ const vs=`attribute vec4 s;void main(){gl_PointSize=float(8);gl_Position=s;}`;
 const fs=`void main(){gl_FragColor=vec4(1);gl_FragColor.b=float(0);}`;
 const CNVS=document.getElementById("cnvs");
 const g=CNVS.getContext("webgl",{preserveDrawingBuffer:true});
-var p=getp(g, [vs,fs]), s=new ATTR(g,p,"s",2);
-g.useProgram(p);
-//
+var p=getp(g, [vs,fs]);	g.useProgram(p);
+var s=new ATTR(g,p,"s",2);
 var abuf=new Float32Array(3*2);	abuf.set([0,0], 0);
 var mode=true;
 const draw=function(now){
 	var t=now/1000, dm=(mode)?g.POINTS:g.TRIANGLES;
-	abuf.set([Math.cos(t),0],2);	abuf.set([0,Math.sin(t)],4);	s.upload(abuf);
+	abuf.set([Math.cos(t),0],2);	abuf.set([0,Math.sin(t)],4);
+	s.upload(abuf);
 	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
 	g.drawArrays(dm, 0, abuf.length/2);
 	requestAnimationFrame(draw);
