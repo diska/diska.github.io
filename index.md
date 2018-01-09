@@ -1,7 +1,7 @@
 ## test
 このサイトは「github pagesの利用の練習」を目的としています。
 コンテンツの内容は原則的に「手元にあったファイル(WebGL自習用)をかき集めたもの」であり、特に一貫性がありません。
-+ [WebGLContext](junk/short01.html): [HTMLInputElement](junk/short01.1.html),[window.requestAnimationFrame](junk/short01.2.html)
++ [WebGLContext](junk/short01.html): [HTMLInputElement](junk/short01.1.html),[window.requestAnimationFrame](junk/short01.2.html),[scissor](junk/short02.html)
 + [WebGLShader](junk/short03.html): ["Hello"](junk/short08.html)
 
 + [uniform](junk/short03.1.html)
