@@ -8,5 +8,6 @@ console.log("buffer:"+g.drawingBufferWidth+","+g.drawingBufferHeight);
 g.enable(g.SCISSOR_TEST);
 g.clearColor(0,.2,0,1);
 function rect(x,y,h,w){	g.scissor(x,y,h,w); g.clear(0x4000);}
+function plot(x,y){	g.scissor(x,y,x+1,y+1); g.clear(0x4000);}
 rect(0,0,1,5);rect(0,2,3,1);rect(3,0,1,5);
 </script>
