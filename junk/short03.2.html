@@ -20,18 +20,20 @@ uniform float t;in vec4 dummy;
 void main(){gl_Position=dummy;
 	float d=float(gl_VertexID)/50.;
 	gl_PointSize=float(64-gl_VertexID);
-	gl_Position.xy=vec2(cos(t-d),sin(t-d));
+	gl_Position.xy=vec2(cos(t-d),sin(t*1.5-d));
 }`;
 const fs=`#version 300 es
 precision mediump float;out vec4 fragColor;
-void main(){fragColor=vec4(1);fragColor.gb=gl_PointCoord;}`;
+void main(){
+	float d=abs(distance(vec2(0.5),gl_PointCoord)); if(d>.5)discard;
+	fragColor=vec4(1.0); fragColor.gb=gl_PointCoord;}`;
 const CNVS=document.getElementById("cnvs");
 const g=CNVS.getContext("webgl2"), p=getp(g, [vs,fs]); g.useProgram(p);
 const t=g.getUniformLocation(p,"t"), setT=function(time){g.uniform1f(t,time);}
 const draw=function(now){
 	setT(now/1000);
-	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
-	g.drawArrays(g.POINTS, 0, 64);
+	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT|g.ALPHA_BUFFER_BIT);
+	g.drawArrays(g.POINTS, 0, 32);
 	requestAnimationFrame(draw);
 };	requestAnimationFrame(draw);
 </script>
