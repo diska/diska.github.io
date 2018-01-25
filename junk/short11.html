@@ -1,10 +1,9 @@
 <canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
-<textarea id="vs" class="vs" cols="60" rows="10"></textarea>
-<textarea id="fs" class="fs" cols="60" rows="10"></textarea><hr/>
-<textarea id="log" class="log" cols="60" rows="10"></textarea>
+<textarea id="vs" cols="60" rows="10"></textarea>
+<textarea id="fs" cols="60" rows="10"></textarea><hr/>
+<textarea id="log" cols="60" rows="10"></textarea>
 <style>
 body{background-color: darkslategrey}
-canvas{width:256px; height:256px;background-color: white}
 textarea{background-color:palegoldenrod;-moz-tab-size:4;tab-size:4}
 </style>
 <script>
@@ -21,17 +20,18 @@ const getp=function(g, src){
 		if(g.getShaderParameter(s, CS)){return s}else{g.deleteShader(s);throw log}
 	}
 }
-</script>
-<script>
 const UI={};
 UI.CNVS=document.getElementById("cnvs"); UI.LOG=document.getElementById("log");
 UI.VS=document.getElementById("vs"); UI.FS=document.getElementById("fs");
 UI.VS.value=`attribute float s;
-void main(){\n\tgl_PointSize=s+64.;\n\tgl_Position=vec4(0,0,0,1);\n}`;
-UI.FS.value=`precision mediump float;\nuniform float uTime;
+void main(){
+	gl_PointSize=s+64.;	gl_Position=vec4(0,0,0,1);
+}`;
+UI.FS.value=`precision mediump float;uniform float uTime;
 void main(){
 	float d=distance(gl_PointCoord.xy,vec2(0.5));\n\tif(d>0.5)discard;
-	gl_FragColor.rgba=vec4(sin(uTime),0,0,1);\n}`;
+	gl_FragColor.rgba=vec4(sin(uTime),0,0,1);
+}`;
 const gl=UI.CNVS.getContext("webgl");
 var uTime;
 function updateProgram(){
