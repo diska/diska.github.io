@@ -1,11 +1,11 @@
 <canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
-<textarea id="vs" class="vs" width="256px" cols="40" rows="10"></textarea>
-<textarea id="fs" class="fs" width="256px" cols="40" rows="10"></textarea><hr/>
-<textarea id="log" class="log" width="256px" cols="40" rows="10"></textarea>
+<textarea id="vs" class="vs" cols="60" rows="10"></textarea>
+<textarea id="fs" class="fs" cols="60" rows="10"></textarea><hr/>
+<textarea id="log" class="log" cols="60" rows="10"></textarea>
 <style>
 body{background-color: darkslategrey}
 canvas{width:256px; height:256px;background-color: white}
-textarea{background-color:palegoldenrod}
+textarea{background-color:palegoldenrod;-moz-tab-size:4;tab-size:4}
 </style>
 <script>
 const getp=function(g, src){
@@ -17,8 +17,7 @@ const getp=function(g, src){
 	if(g.getProgramParameter(p, LS)){return p}else{g.deleteProgram(p);throw log}
 	function cs(t, src){
 		var s=g.createShader(t);	g.shaderSource(s, src);
-		g.compileShader(s);
-		log=src+"\nCompile:"+g.getShaderInfoLog(s);
+		g.compileShader(s);	log=src+"\nCompile:"+g.getShaderInfoLog(s);
 		if(g.getShaderParameter(s, CS)){return s}else{g.deleteShader(s);throw log}
 	}
 }
@@ -27,20 +26,23 @@ const getp=function(g, src){
 const UI={};
 UI.CNVS=document.getElementById("cnvs"); UI.LOG=document.getElementById("log");
 UI.VS=document.getElementById("vs"); UI.FS=document.getElementById("fs");
-UI.VS.value=`void main(){\n\tgl_PointSize=64.;\n\tgl_Position=vec4(0,0,0,1);\n}`;
-UI.FS.value=`precision mediump float;\nuniform float time;
-void main(){\n\tgl_FragColor=vec4(1);\n\tgl_FragColor.r=sin(time);\n}`;
+UI.VS.value=`attribute float s;
+void main(){\n\tgl_PointSize=s+64.;\n\tgl_Position=vec4(0,0,0,1);\n}`;
+UI.FS.value=`precision mediump float;\nuniform float uTime;
+void main(){
+	float d=distance(gl_PointCoord.xy,vec2(0.5));\n\tif(d>0.5)discard;
+	gl_FragColor.rgba=vec4(sin(uTime),0,0,1);\n}`;
 const gl=UI.CNVS.getContext("webgl");
 var uTime;
-function updateProg(){
+function updateProgram(){
 	try{
-		var pg=getp(gl, [UI.VS.value,UI.FS.value]);
+		var pg=getp(gl, [UI.VS.value, UI.FS.value]);
 		gl.useProgram(pg);
-		uTime=gl.getUniformLocation(pg, "time");
+		uTime=gl.getUniformLocation(pg, "uTime");
 		UI.LOG.value="ok!";
 	}catch(e){UI.LOG.value=e;}
-}	updateProg();
-UI.CNVS.addEventListener("click", updateProg);
+}	updateProgram();
+UI.CNVS.addEventListener("click", updateProgram);
 function draw(now){
 	var time=now/1000;	gl.uniform1f(uTime, time);
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);	gl.clear(gl.COLOR_BUFFER_BIT);
