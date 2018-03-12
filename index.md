@@ -6,10 +6,10 @@
 
 + [uniform](junk/short03.1.html):[w/WebGL2:gl_VertexID](junk/short03.2.html)
 + [attritube](junk/short04.html):[no cls](junk/short04.1.html)
-+ [texture](junk/short05.html):[mipmap](junk/short05.1.html),[trans coord](junk/short05.2.html),[generate](junk/short09.html)
++ [texture](junk/short05.html):[mipmap](junk/short05.1.html),[trans coord](junk/short05.2.html),[trans coord(alt)](junk/short05.3.html),[generate](junk/short09.html)
 + [buffer/polygon](junk/short06.html):[framework](junk/short07.html):
 
-+ [shader editor???](junk/short11.html)
++ [shader editor???](junk/short11.html):[shader editor??(w/img)](junk/short11.1.html)
 + [normal??](junk/short10.html)([white](junk/short10.1.html))
 + [tilemap?](tilemaps/mapwebgl.html)
 

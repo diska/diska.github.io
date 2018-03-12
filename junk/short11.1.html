@@ -1,0 +1,68 @@
+<canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
+<textarea id="vs" cols="60" rows="10"></textarea>
+<textarea id="fs" cols="60" rows="10"></textarea><hr/>
+<textarea id="log" cols="60" rows="10"></textarea>
+<style>
+body{background-color: darkslategrey}
+textarea{background-color:palegoldenrod;-moz-tab-size:4;tab-size:4}
+</style>
+<script>
+const getp=function(g, src){
+	const FS=g.FRAGMENT_SHADER,VS=g.VERTEX_SHADER;
+	const CS=g.COMPILE_STATUS, LS=g.LINK_STATUS;
+	var log="";	p=g.createProgram();
+	g.attachShader(p, cs(VS, src[0]));	g.attachShader(p, cs(FS, src[1]));
+	g.linkProgram(p);	log="Link:"+g.getProgramInfoLog(p);
+	if(g.getProgramParameter(p, LS)){return p}else{g.deleteProgram(p);throw log}
+	function cs(t, src){
+		var s=g.createShader(t);	g.shaderSource(s, src);
+		g.compileShader(s);	log=src+"\nCompile:"+g.getShaderInfoLog(s);
+		if(g.getShaderParameter(s, CS)){return s}else{g.deleteShader(s);throw log}
+	}
+}
+function sett(g, image){
+	const TD=g.TEXTURE_2D;
+	const TS=g.TEXTURE_WRAP_S, TT=g.TEXTURE_WRAP_T, TE=g.CLAMP_TO_EDGE;
+	const TG=g.TEXTURE_MAG_FILTER,TN=g.TEXTURE_MIN_FILTER, T0=g.NEAREST;
+	g.bindTexture(TD, g.createTexture());
+	g.texImage2D(TD, 0, g.RGBA, g.RGBA, g.UNSIGNED_BYTE, image);
+	g.texParameteri(TD, TG, T0);	g.texParameteri(TD, TN, T0);
+//	g.texParameteri(TD, TS, TE);	g.texParameteri(TD, TT, TE);
+//	g.generateMipmap(g.TEXTURE_2D);
+}
+const UI={};
+UI.CNVS=document.getElementById("cnvs"); UI.LOG=document.getElementById("log");
+UI.VS=document.getElementById("vs"); UI.FS=document.getElementById("fs");
+UI.VS.value=`attribute float s;
+void main(){
+	gl_PointSize=s+128.;	gl_Position=vec4(0,0,0,1);
+}`;
+UI.FS.value=`precision mediump float;
+uniform float uTime;uniform sampler2D t;
+void main(){
+	float d=distance(gl_PointCoord.xy,vec2(0.5));\n\tif(d>0.5)discard;
+	gl_FragColor=vec4(sin(uTime),0,0,1);
+	gl_FragColor+=texture2D(t, gl_PointCoord.xy);
+}`;
+const gl=UI.CNVS.getContext("webgl");
+var uTime;
+const img=document.createElement("img");
+function updateProgram(){
+	try{
+		var pg=getp(gl, [UI.VS.value, UI.FS.value]);
+		gl.useProgram(pg);
+		uTime=gl.getUniformLocation(pg, "uTime");
+		UI.LOG.value="ok!";
+	}catch(e){UI.LOG.value=e;}
+}	updateProgram();
+UI.CNVS.addEventListener("click", updateProgram);
+function draw(now){
+	sett(gl, img);
+	var time=now/1000;
+	gl.uniform1f(uTime, time);
+	gl.clearColor(0.0, 0.0, 0.0, 1.0);	gl.clear(gl.COLOR_BUFFER_BIT);
+	gl.drawArrays(gl.POINTS, 0,1);
+	requestAnimationFrame(draw);
+}
+img.addEventListener("load", draw);img.src="monkey.png";
+</script>
