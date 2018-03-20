@@ -15,7 +15,7 @@ const getp=function(g, src){
 		if(g.getShaderParameter(s, CS)){return s}else{g.deleteShader(s);}
 	}
 }
-const vs=`attribute vec4 a;void main(){gl_PointSize=float(32);gl_Position=a;}`;
+const vs=`attribute vec4 a;void main(){gl_PointSize=1.0/(a.z+2.0)*float(32);gl_Position=a;}`;
 const fs=`void main(){gl_FragColor=vec4(1);gl_FragColor.gb=gl_PointCoord;}`;
 const CNVS=document.getElementById("cnvs");
 const g=CNVS.getContext("webgl"), p=getp(g, [vs,fs]); g.useProgram(p);
@@ -23,9 +23,11 @@ const a=g.getAttribLocation(p,"a");
 const setA=function(x,y,z,w){g.vertexAttrib4f(a, x,y,z,w);}
 var time, x, y;
 const draw=function(now){
-	time=now/1000, c=Math.cos(time), s=Math.sin(time);
+	time=now/1000,	time*=5, c=Math.cos(time), s=Math.sin(time);
 	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
 	setA(c,s,0,1);	g.drawArrays(g.POINTS, 0, 1);
+	setA(c,0,s,1);	g.drawArrays(g.POINTS, 0, 1);
+	setA(0,c,s,1);	g.drawArrays(g.POINTS, 0, 1);
 	requestAnimationFrame(draw);
 };	requestAnimationFrame(draw);
 </script>
