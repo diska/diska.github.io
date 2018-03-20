@@ -21,7 +21,7 @@ const CNVS=document.getElementById("cnvs");
 const g=CNVS.getContext("webgl"), p=getp(g, [vs,fs]); g.useProgram(p);
 const a=g.getAttribLocation(p,"a");
 const setA=function(x,y,z,w){g.vertexAttrib4f(a, x,y,z,w);}
-var time, x, y;
+var time, c, s;
 const draw=function(now){
 	time=now/1000, c=Math.cos(time), s=Math.sin(time);
 	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
