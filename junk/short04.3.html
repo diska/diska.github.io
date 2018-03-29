@@ -1,0 +1,41 @@
+<h1>GLSL attribute</h1>
+<hr/><canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
+<script>
+const getp=function(g, src){
+	const FS=g.FRAGMENT_SHADER,VS=g.VERTEX_SHADER;
+	const CS=g.COMPILE_STATUS, LS=g.LINK_STATUS;
+	var p=g.createProgram();
+	g.attachShader(p, cs(VS, src[0]));	g.attachShader(p, cs(FS, src[1]));
+	g.linkProgram(p);	console.log("link:"+g.getProgramInfoLog(p));
+	if(g.getProgramParameter(p, LS)){return p;}else{g.deleteProgram(p);}
+	function cs(t, src){
+		console.log(src);
+		var s=g.createShader(t);	g.shaderSource(s, src);
+		g.compileShader(s);console.log("compile("+t+"):"+g.getShaderInfoLog(s));
+		if(g.getShaderParameter(s, CS)){return s}else{g.deleteShader(s);}
+	}
+}
+const vs=`attribute vec4 a;varying float z;
+void main(){
+	gl_PointSize=1.0/(a.z+2.0)*float(32);gl_Position=a;
+	z=gl_Position.z;
+}`;
+const fs=`precision mediump float;varying float z;
+void main(){
+	gl_FragColor.rgb=vec3(0.5);	gl_FragColor.a=1.0;
+	gl_FragColor*=z/2.0+0.5;
+}`;
+const CNVS=document.getElementById("cnvs");
+const g=CNVS.getContext("webgl"), p=getp(g, [vs,fs]); g.useProgram(p);
+const a=g.getAttribLocation(p,"a");
+const setA=function(x,y,z,w){g.vertexAttrib4f(a, x,y,z,w);}
+var time, c, s;
+const draw=function(now){
+	time=now/1000, c=Math.cos(time), s=Math.sin(time);
+	g.clearColor(0.5,0.5,0.5,1);	g.clear(g.COLOR_BUFFER_BIT);
+	setA(c,s,0,1);	g.drawArrays(g.POINTS, 0, 1);
+	setA(c,0,s,1);	g.drawArrays(g.POINTS, 0, 1);
+	setA(0,c,s,1);	g.drawArrays(g.POINTS, 0, 1);
+	requestAnimationFrame(draw);
+};	requestAnimationFrame(draw);
+</script>

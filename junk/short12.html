@@ -1,0 +1,70 @@
+<h1>program as class</h1>
+<hr/><canvas id="canvas" width="256px" height="256px"></canvas><hr/>
+<script>
+const vsrc1=`attribute vec4 aPosi;uniform mat4 uMvpm;
+void main(void){gl_Position=aPosi*uMvpm;gl_PointSize=32./(2.-gl_Position.z);}`;
+const fsrc1=`void main(void){gl_FragColor=vec4(1.);gl_FragColor.rb*=0.5;}`;
+window.onload=function(){
+	const gl=document.getElementById("canvas").getContext("webgl");
+	const prg1=new Prg();
+	prg1.handle=prg1.getp(gl, vsrc1, fsrc1);
+	prg1.uMvpm=gl.getUniformLocation(prg1.handle, `uMvpm`),
+	prg1.aPosi=gl.getAttribLocation(prg1.handle, `aPosi`),
+	prg1.bPosi=gl.createBuffer();
+	prg1.enable3f(gl, prg1.aPosi, prg1.bPosi);
+	prg1.setPosi=function(data){prg1.setb(gl, prg1.bPosi, data);}
+	prg1.setMvpm=function(mvpm){gl.uniformMatrix4fv(prg1.uMvpm, false, mvpm);}
+	prg1.use=function(){gl.useProgram(this.handle);}
+
+	prg1.setPosi(new Float32Array([0,1,0, 1,0,0, -1,0,0,]));
+	prg1.use();
+	var c,s;
+	function update(now){
+		draw(time=now/1000, mvpMatrix=roty(time));
+		requestAnimationFrame(update);
+	};	requestAnimationFrame(update);
+	function roty(theta){
+		c=Math.cos(theta), s=Math.sin(theta);
+		return [c,0,-s,0, 0,1,0,0, s,0,c,0, 0,0,0,1];
+	}
+	function draw(time, mvpMatrix){
+		prg1.setMvpm(mvpMatrix);
+		gl.clearColor(0, 0, 0, 1);	gl.clear(gl.COLOR_BUFFER_BIT);
+		gl.drawArrays(gl.TRIANGLES, 0,3);
+		gl.drawArrays(gl.POINTS, 0,3);
+	}
+}
+</script>
+<script>
+function Prg(){}
+Prg.prototype.getp=function(gl, vsrc, fsrc){
+	var pgm=gl.createProgram();
+	gl.attachShader(pgm, gets(gl.VERTEX_SHADER, vsrc));
+	gl.attachShader(pgm, gets(gl.FRAGMENT_SHADER, fsrc));
+	gl.linkProgram(pgm);
+	if(!gl.getProgramParameter(pgm, gl.LINK_STATUS)){
+		throw(gl.getProgramInfoLog(pgm));
+	}
+	return pgm;
+	function gets(type, src){
+		var shader=gl.createShader(type);
+		gl.shaderSource(shader, src);
+		gl.compileShader(shader);
+		if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)){
+			throw gl.getShaderInfoLog(shader);
+		}
+		return shader;
+	}
+}
+Prg.prototype.setb=function(gl, buffer, data){
+	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+	gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+	gl.bindBuffer(gl.ARRAY_BUFFER, null);
+}
+Prg.prototype.enable3f=function(gl, attr, buffer){
+	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+	gl.enableVertexAttribArray(attr);
+	gl.vertexAttribPointer(attr, 3, gl.FLOAT, false, 0, 0);
+	gl.bindBuffer(gl.ARRAY_BUFFER, null);
+}
+</script>
