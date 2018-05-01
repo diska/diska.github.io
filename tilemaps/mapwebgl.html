@@ -1,34 +1,102 @@
-<input id="mapdim" type="text"></input><input id="file" type="text"></input>
-<input id="update" type="button" value="update"></input>
+<input id="MDIM" type="text"></input><input id="FILE" type="text"></input>
+<input id="UPDT" type="button" value="update"></input>
 <hr/>
-<canvas id="cnvs" width="512" height="512"></canvas>
-<textarea id="maptile" style="font-size:10px;width:512px;height:512px"></textarea>
-<hr/><div id="div"></div><hr/>
-<script src="webgllib.js" type="text/javascript"></script>
-<script src="mapwebgl.vs" type="text/javascript"></script>
-<script src="mapwebgl.fs" type="text/javascript"></script>
-<script>
-const TILEDIM=8, MAPDIM=16;
+<canvas id="CNVS" width="512" height="512"></canvas>
+<textarea id="AREA" style="font-size:10px;width:512px;height:512px"></textarea>
+<hr/><div id="DIV0"></div><hr/>
+<script >
+const vsrc=`attribute vec3 p;void main(){gl_PointSize=512.;gl_Position=vec4(vec3(p),1.);}`;
+const fsrc=`precision mediump float;
+uniform sampler2D map;	uniform sampler2D tile;
+uniform float MAPDIM;	uniform float TILEDIM;
+//const float MAPDIM=16.0;
+//const float TILEDIM=8.0;
+//const float IMGDIM=256.0-0.001;
+// 8bit整数だったfloat?を3bit/3bit/2bitに分けてvec4(x,y,z,1.0)に入れるみたいな。
+vec4 toVec4(vec2 coord){
+	float p=texture2D(map, coord).a;
+	vec4 color=vec4(0);
+	// rrrgggbb
+	float a=p*=256.0;
+	if(a>=128.0){color.r+=4.0;a-=128.0;}
+	if(a>= 64.0){color.r+=2.0;a-= 64.0;}
+	if(a>= 32.0){color.r+=1.0;a-= 32.0;}
+	if(a>= 16.0){color.g+=4.0;a-= 16.0;}
+	if(a>=  8.0){color.g+=2.0;a-=  8.0;}
+	if(a>=  4.0){color.g+=1.0;a-=  4.0;}
+	if(a>=  2.0){color.b+=4.0;a-=  2.0;}
+	if(a>=  1.0){color.b+=2.0;a-=  1.0;}
+	color.w=8.;
+	return color/8.0;
+}
+vec4 vec4ToVec4(vec2 coord){
+	return texture2D(map, coord);
+}
+// 「タイル内」の「どの座標」か。「０～タイルの幅」小数部のみ
+vec2 getTileCoord(vec2 coord){	return fract(coord*MAPDIM)/TILEDIM;}
+// 回転させる。
+vec2 getRotated(vec2 coord, float c){
+	float s=(1.0/TILEDIM);
+	if(c< 2.0/8.0)return vec2(coord.x, coord.y);	// 0度
+	if(c< 4.0/8.0)return vec2(s-coord.y, coord.x);	// 90度
+	if(c< 6.0/8.0)return vec2(s-coord.x, s-coord.y);	// 180度
+	if(c< 8.0/8.0)return vec2(coord.y, s-coord.x);	// 270度
+	return vec2(0);
+}
+vec4 getTile(sampler2D tex, vec3 currentTileCoord){
+	vec2 tileCoord=vec2(0);
+	tileCoord+=vec2(currentTileCoord.x, currentTileCoord.y);	// このタイルの
+	tileCoord+=vec2(getRotated(getTileCoord(gl_PointCoord),currentTileCoord.z));	// このへん
+	return texture2D(tex, tileCoord);	// の色
+}
 //
-const UI={
-	cnvs:document.getElementById("cnvs"),
-	m:document.getElementById("mapdim"),
-	t:document.getElementById("maptile"),
-	file:document.getElementById("file"),
-	button:document.getElementById("update"),
-	image:document.createElement("img"),
-	div:document.getElementById("div"),
-	getMapArray:function(){	return UI.t.value.split(",");},
-	updateImage:function(){	UI.image.src=UI.file.value;},
-	init:function(){
-		UI.m.value=MAPDIM;
-		UI.file.value="BlackShroudTile20171011.png";
-		UI.cnvs.style="background-color:black";
-		UI.image.width=512; UI.image.height=512;
-		UI.div.appendChild(UI.image);
-	},
-};	UI.init();
-UI.t.value=`0x00,0x20,0x40,0x60,0x80,0xa0,0xc0,0xe0,0x01,0x21,0x41,0x61,0x81,0xa1,0xc1,0xe1,
+void main(){
+//	vec4 m=toVec4(texture2D(map, gl_PointCoord).a);	// mapの値。
+	vec4 m=toVec4(gl_PointCoord);	// mapの値。
+	float rot=m.b;
+	// 元々8ビットのタイル指定数値を色で表示してみると、こう。
+	gl_FragColor=m;
+	// タイル指定数値からタイルにしてはめこむ。
+	gl_FragColor=getTile(tile, vec3(vec2(m.x,m.y),rot));
+}`;
+var cx0=CNVS.getContext("webgl",{preserveDrawingBuffer:true});
+const SHADV=0x8b31,SHADF=0x8b30,COLOB=0x4000;
+var vs0=cx0.createShader(SHADV);cx0.shaderSource(vs0, vsrc);cx0.compileShader(vs0);
+var fs0=cx0.createShader(SHADF);cx0.shaderSource(fs0, fsrc);cx0.compileShader(fs0);
+var pg0=cx0.createProgram();cx0.attachShader(pg0, vs0);cx0.attachShader(pg0, fs0);
+cx0.linkProgram(pg0);
+console.log(`Compile log for VS ${vs0}:\n${cx0.getShaderInfoLog(vs0)}`);
+console.log(`Compile log for FS ${fs0}:\n${cx0.getShaderInfoLog(fs0)}`);
+console.log(`Link log for PG ${pg0}:\n${cx0.getProgramInfoLog(pg0)}`);
+var pg0TILEDIM=cx0.getUniformLocation(pg0, "TILEDIM");
+var pg0MAPDIM=cx0.getUniformLocation(pg0, "MAPDIM");
+var pg0tile=cx0.getUniformLocation(pg0, "tile");
+var pg0map=cx0.getUniformLocation(pg0, "map");
+</script>
+<script>
+const TXT2D=0x0de1,TXT00=0x84c0,FRGBA=0x1908,FLUMI=0x1909,FALPH=0x1906;TYPUB=0x1401;
+const MAGFT=0x2800,MINFT=0x2801,NEARE=0x2600,LINEA=0x2601,NEMNE=0x2700;
+const WRAPS=0x2802,WRAPT=0x2803,REPET=0x2901,CLAMP=0x812F,REPEM=0x8370;
+sett=function (g, p, data, size=0){
+	g.bindTexture(TXT2D, g.createTexture());
+	g.texParameteri(TXT2D,MINFT,NEARE);	g.texParameteri(TXT2D,MAGFT,NEARE);
+	g.texParameteri(TXT2D,WRAPS,CLAMP);	g.texParameteri(TXT2D,WRAPT,CLAMP);
+	if(size==0){
+		g.texImage2D(TXT2D,0,FRGBA,FRGBA,TYPUB, data);
+	}else{
+		g.texImage2D(TXT2D,0,FALPH,size,size,0,FALPH,TYPUB, data);
+	}
+}
+//
+const TILEDIM=8;
+const OIMG=document.createElement("img");	OIMG.width=512; OIMG.height=512;
+CNVS.style="background-color:black";
+MDIM.value=16;
+FILE.value="BlackShroudTile20171011.png";
+DIV0.appendChild(OIMG);
+cx0.useProgram(pg0);
+
+AREA.value=`0x00,0x20,0x40,0x60,0x80,0xa0,0xc0,0xe0,0x01,0x21,0x41,0x61,0x81,0xa1,0xc1,0xe1,
 0x04,0x24,0x44,0x64,0x84,0xa4,0xc4,0xe4,0x05,0x25,0x45,0x65,0x85,0xa5,0xc5,0xe5,
 0x08,0x28,0x48,0x68,0x88,0xa8,0xc8,0xe8,0x09,0x29,0x49,0x69,0x89,0xa9,0xc9,0xe9,
 0x0c,0x2c,0x4c,0x6c,0x8c,0xac,0xcc,0xec,0x0d,0x2d,0x4d,0x6d,0x8d,0xad,0xcd,0xed,
@@ -49,21 +117,20 @@ UI.t.value=`0x00,0x20,0x40,0x60,0x80,0xa0,0xc0,0xe0,0x01,0x21,0x41,0x61,0x81,0xa
 0x1e,0x3e,0x5e,0x7e,0x9e,0xbe,0xde,0xfe,0x1f,0x3f,0x5f,0x7f,0x9f,0xbf,0xdf,0xff,
 `;
 function run(){
-	const glib=webgllib;
-	const g=UI.cnvs.getContext("webgl",{preserveDrawingBuffer:true});
-	const p=glib.getp(g, [VS,FS]);	g.useProgram(p);
 	const draw=function(){
-		var map=new Uint8Array(UI.getMapArray());
-		glib.setf(g, p, "TILEDIM", TILEDIM);
-		glib.setf(g, p, "MAPDIM", UI.m.value);
-		glib.sett(g, p, "map", map, 0, UI.m.value);
-		glib.sett(g, p, "tile", UI.image, 1);
-		g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT|g.ALPHA_BIT);
-		g.drawArrays(g.POINTS, 0,1);
+		var map=new Uint8Array(AREA.value.split(","));
+		cx0.uniform1f(pg0TILEDIM, TILEDIM);
+		cx0.uniform1f(pg0MAPDIM,  MDIM.value);
+		cx0.uniform1i(pg0map, 0);
+		cx0.uniform1i(pg0tile, 1);
+		cx0.activeTexture(TXT00+0);	sett(cx0, pg0, map, MDIM.value);
+		cx0.activeTexture(TXT00+1);	sett(cx0, pg0, OIMG);
+		cx0.clearColor(0,.3,0,1);	cx0.clear(COLOB);
+		cx0.drawArrays(0, 0,1);
 	};
-	UI.cnvs.addEventListener("click", draw);
-	UI.button.addEventListener("click", UI.updateImage);
-	UI.image.addEventListener("load", draw);
-	UI.image.src=UI.file.value;
+	CNVS.addEventListener("click", draw);
+	UPDT.addEventListener("click", function updateImage(){OIMG.src=FILE.value;});
+	OIMG.addEventListener("load", draw);
+	OIMG.src=FILE.value;
 };	run();
 </script>
