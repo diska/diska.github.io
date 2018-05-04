@@ -1,39 +1,37 @@
 <h1>uniform/WebGL2:gl_VertexID</h1>
-<hr/><canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
+<hr/><canvas id="CNVS" width="256px" height="256px"></canvas><hr/>
 <script>
-const getp=function(g, src){
-	const FS=g.FRAGMENT_SHADER,VS=g.VERTEX_SHADER;
-	const CS=g.COMPILE_STATUS, LS=g.LINK_STATUS;
-	var p=g.createProgram();
-	g.attachShader(p, cs(VS, src[0]));	g.attachShader(p, cs(FS, src[1]));
-	g.linkProgram(p);	console.log("link:"+g.getProgramInfoLog(p));
-	if(g.getProgramParameter(p, LS)){return p;}else{g.deleteProgram(p);}
-	function cs(t, src){
-		console.log(src);
-		var s=g.createShader(t);	g.shaderSource(s, src);
-		g.compileShader(s);console.log("compile("+t+"):"+g.getShaderInfoLog(s));
-		if(g.getShaderParameter(s, CS)){return s}else{g.deleteShader(s);}
-	}
-}
-const vs=`#version 300 es
+const vsrc=`#version 300 es
 uniform float t;in vec4 dummy;
 void main(){gl_Position=dummy;
 	float d=float(gl_VertexID)/50.;
 	gl_PointSize=float(64-gl_VertexID);
 	gl_Position.xy=vec2(cos(t-d),sin(t*1.5-d));
 }`;
-const fs=`#version 300 es
+const fsrc=`#version 300 es
 precision mediump float;out vec4 fragColor;
 void main(){
 	float d=abs(distance(vec2(0.5),gl_PointCoord)); if(d>.5)discard;
 	fragColor=vec4(1.0); fragColor.gb=gl_PointCoord;}`;
-const CNVS=document.getElementById("cnvs");
-const g=CNVS.getContext("webgl2"), p=getp(g, [vs,fs]); g.useProgram(p);
-const t=g.getUniformLocation(p,"t"), setT=function(time){g.uniform1f(t,time);}
+var cx0=CNVS.getContext("webgl2");
+const SHADV=0x8b31,SHADF=0x8b30,CSTAT=0x8b81,LSTAT=0x8b82;
+var vs0=cx0.createShader(SHADV);cx0.shaderSource(vs0, vsrc);cx0.compileShader(vs0);
+var fs0=cx0.createShader(SHADF);cx0.shaderSource(fs0, fsrc);cx0.compileShader(fs0);
+var pg0=cx0.createProgram();cx0.attachShader(pg0, vs0);cx0.attachShader(pg0, fs0);
+cx0.linkProgram(pg0);
+var errlog="";
+errlog+=`Compile log for VS ${vs0}:\n${cx0.getShaderInfoLog(vs0)}`;
+errlog+=`Compile log for FS ${fs0}:\n${cx0.getShaderInfoLog(fs0)}`;
+errlog+=`Link log for PG ${pg0}:\n${cx0.getProgramInfoLog(pg0)}`;
+if(!cx0.getShaderParameter(vs0, CSTAT)||!cx0.getShaderParameter(fs0, CSTAT)
+	||!cx0.getProgramParameter(pg0, LSTAT))console.log(errlog);
+//
+cx0.useProgram(pg0);
+const pg0t=cx0.getUniformLocation(pg0,"t");
 const draw=function(now){
-	setT(now/1000);
-	g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
-	g.drawArrays(g.POINTS, 0, 32);
+	cx0.uniform1f(pg0t,now/1000);
+	cx0.clearColor(0,.3,0,1);	cx0.clear(cx0.COLOR_BUFFER_BIT);
+	cx0.drawArrays(cx0.POINTS, 0, 32);
 	requestAnimationFrame(draw);
 };	requestAnimationFrame(draw);
 </script>
