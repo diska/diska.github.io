@@ -1,5 +1,4 @@
-<input id="MDIM" type="text"><input id="FILE" type="text">
-<input id="UPDT" type="button" value="update">
+<input id="MDIM" type="text"><input id="FILE" type="file">
 <hr/>
 <canvas id="CNVS" width="512" height="512"></canvas>
 <textarea id="AREA" style="font-size:10px;width:512px;height:512px"></textarea>
@@ -92,7 +91,6 @@ const TILEDIM=8;
 const OIMG=document.createElement("img");	OIMG.width=512; OIMG.height=512;
 CNVS.style="background-color:black";
 MDIM.value=16;
-FILE.value="BlackShroudTile20171011.png";
 DIV0.appendChild(OIMG);
 cx0.useProgram(pg0);
 
@@ -116,21 +114,21 @@ AREA.value=`0x00,0x20,0x40,0x60,0x80,0xa0,0xc0,0xe0,0x01,0x21,0x41,0x61,0x81,0xa
 0x1a,0x3a,0x5a,0x7a,0x9a,0xba,0xda,0xfa,0x1b,0x3b,0x5b,0x7b,0x9b,0xbb,0xdb,0xfb,
 0x1e,0x3e,0x5e,0x7e,0x9e,0xbe,0xde,0xfe,0x1f,0x3f,0x5f,0x7f,0x9f,0xbf,0xdf,0xff,
 `;
-function run(){
-	const draw=function(){
-		var map=new Uint8Array(AREA.value.split(","));
-		cx0.uniform1f(pg0TILEDIM, TILEDIM);
-		cx0.uniform1f(pg0MAPDIM,  MDIM.value);
-		cx0.uniform1i(pg0map, 0);
-		cx0.uniform1i(pg0tile, 1);
-		cx0.activeTexture(TXT00+0);	sett(cx0, pg0, map, MDIM.value);
-		cx0.activeTexture(TXT00+1);	sett(cx0, pg0, OIMG);
-		cx0.clearColor(0,.3,0,1);	cx0.clear(COLOB);
-		cx0.drawArrays(0, 0,1);
-	};
-	CNVS.addEventListener("click", draw);
-	UPDT.addEventListener("click", function updateImage(){OIMG.src=FILE.value;});
-	OIMG.addEventListener("load", draw);
-	OIMG.src=FILE.value;
-};	run();
+const draw=function(){
+	var map=new Uint8Array(AREA.value.split(","));
+	cx0.uniform1f(pg0TILEDIM, TILEDIM);
+	cx0.uniform1f(pg0MAPDIM,  MDIM.value);
+	cx0.uniform1i(pg0map, 0);
+	cx0.uniform1i(pg0tile, 1);
+	cx0.activeTexture(TXT00+0);	sett(cx0, pg0, map, MDIM.value);
+	cx0.activeTexture(TXT00+1);	sett(cx0, pg0, OIMG);
+	cx0.clearColor(0,.3,0,1);	cx0.clear(COLOB);
+	cx0.drawArrays(0, 0,1);
+};
+CNVS.addEventListener("click", draw);
+var fr=new FileReader();
+fr.addEventListener("load", function(ev){OIMG.src=ev.target.result});
+FILE.addEventListener("change", function(ev){fr.readAsDataURL(ev.target.files[0])});
+OIMG.addEventListener("load", draw);
+OIMG.src="./BlackShroudTile20171011.png";
 </script>
