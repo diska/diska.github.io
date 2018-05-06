@@ -4,7 +4,7 @@
 <textarea id="AREA" style="font-size:10px;width:512px;height:512px"></textarea>
 <hr/><div id="DIV0"></div><hr/>
 <script >
-const vsrc=`attribute vec3 p;void main(){gl_PointSize=512.;gl_Position=vec4(vec3(p),1.);}`;
+const vsrc=`attribute vec3 p;void main(){gl_PointSize=32.;gl_Position=vec4(vec3(p),1.);}`;
 const fsrc=`precision mediump float;
 uniform sampler2D map;	uniform sampler2D tile;
 uniform float MAPDIM;	uniform float TILEDIM;
@@ -12,6 +12,8 @@ uniform float MAPDIM;	uniform float TILEDIM;
 //const float TILEDIM=8.0;
 //const float IMGDIM=256.0-0.001;
 // 8bit整数だったfloat?を3bit/3bit/2bitに分けてvec4(x,y,z,1.0)に入れるみたいな。
+vec2 fcoord;
+
 vec4 toVec4(vec2 coord){
 	float p=texture2D(map, coord).a;
 	vec4 color=vec4(0);
@@ -28,9 +30,6 @@ vec4 toVec4(vec2 coord){
 	color.w=8.;
 	return color/8.0;
 }
-vec4 vec4ToVec4(vec2 coord){
-	return texture2D(map, coord);
-}
 // 「タイル内」の「どの座標」か。「０～タイルの幅」小数部のみ
 vec2 getTileCoord(vec2 coord){	return fract(coord*MAPDIM)/TILEDIM;}
 // 回転させる。
@@ -45,13 +44,13 @@ vec2 getRotated(vec2 coord, float c){
 vec4 getTile(sampler2D tex, vec3 currentTileCoord){
 	vec2 tileCoord=vec2(0);
 	tileCoord+=vec2(currentTileCoord.x, currentTileCoord.y);	// このタイルの
-	tileCoord+=vec2(getRotated(getTileCoord(gl_PointCoord),currentTileCoord.z));	// このへん
+	tileCoord+=vec2(getRotated(getTileCoord(fcoord),currentTileCoord.z));	// このへん
 	return texture2D(tex, tileCoord);	// の色
 }
 //
 void main(){
-//	vec4 m=toVec4(texture2D(map, gl_PointCoord).a);	// mapの値。
-	vec4 m=toVec4(gl_PointCoord);	// mapの値。
+	fcoord=gl_FragCoord.xy/512.;	fcoord.y=1.0-fcoord.y;
+	vec4 m=toVec4(fcoord);	// mapの値。
 	float rot=m.b;
 	// 元々8ビットのタイル指定数値を色で表示してみると、こう。
 	gl_FragColor=m;
@@ -73,7 +72,8 @@ var pg0tile=cx0.getUniformLocation(pg0, "tile");
 var pg0map=cx0.getUniformLocation(pg0, "map");
 </script>
 <script>
-const TXT2D=0x0de1,TXT00=0x84c0,FRGBA=0x1908,FLUMI=0x1909,FALPH=0x1906;TYPUB=0x1401;
+const TXT2D=0x0de1,TXT00=0x84c0,FRGBA=0x1908,FLUMI=0x1909,FALPH=0x1906;
+const TYPUB=0x1401;
 const MAGFT=0x2800,MINFT=0x2801,NEARE=0x2600,LINEA=0x2601,NEMNE=0x2700;
 const WRAPS=0x2802,WRAPT=0x2803,REPET=0x2901,CLAMP=0x812F,REPEM=0x8370;
 sett=function (g, p, data, size=0){
@@ -114,6 +114,10 @@ AREA.value=`0x00,0x20,0x40,0x60,0x80,0xa0,0xc0,0xe0,0x01,0x21,0x41,0x61,0x81,0xa
 0x1a,0x3a,0x5a,0x7a,0x9a,0xba,0xda,0xfa,0x1b,0x3b,0x5b,0x7b,0x9b,0xbb,0xdb,0xfb,
 0x1e,0x3e,0x5e,0x7e,0x9e,0xbe,0xde,0xfe,0x1f,0x3f,0x5f,0x7f,0x9f,0xbf,0xdf,0xff,
 `;
+cx0.bindBuffer(cx0.ARRAY_BUFFER, cx0.createBuffer());
+cx0.enableVertexAttribArray(0);
+cx0.vertexAttribPointer(0, 2, cx0.FLOAT, false, 0,0);
+cx0.bufferData(cx0.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3, ]), cx0.STATIC_DRAW);
 const draw=function(){
 	var map=new Uint8Array(AREA.value.split(","));
 	cx0.uniform1f(pg0TILEDIM, TILEDIM);
@@ -123,12 +127,19 @@ const draw=function(){
 	cx0.activeTexture(TXT00+0);	sett(cx0, pg0, map, MDIM.value);
 	cx0.activeTexture(TXT00+1);	sett(cx0, pg0, OIMG);
 	cx0.clearColor(0,.3,0,1);	cx0.clear(COLOB);
-	cx0.drawArrays(0, 0,1);
+	cx0.drawArrays(5, 0,3);
 };
 CNVS.addEventListener("click", draw);
 var fr=new FileReader();
 fr.addEventListener("load", function(ev){OIMG.src=ev.target.result});
 FILE.addEventListener("change", function(ev){fr.readAsDataURL(ev.target.files[0])});
 OIMG.addEventListener("load", draw);
+function rotate(ev){
+	var rect=ev.target.getBoundingClientRect();
+	var x=ev.clientX-rect.left, y=ev.clientY-rect.top;
+	var x2=Math.floor((x/512)*MDIM.value), y2=Math.floor((x/512)*MDIM.value);
+	console.log(`X2=${x2}, Y2=${y2}`);
+}
+//CNVS.addEventListener("click", rotate);
 OIMG.src="./BlackShroudTile20171011.png";
 </script>
