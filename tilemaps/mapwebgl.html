@@ -1,6 +1,7 @@
-<input id="MDIM" type="text"><input id="FILE" type="file">
-<hr/><canvas id="CNVS" width="512" height="512"></canvas>
+生成される正方形マップの一辺のタイル数：<input id="MDIM" type="text"><br/>
+<canvas id="CNVS" width="512" height="512"></canvas>
 <textarea id="AREA" style="font-size:10px;width:512px;height:512px"></textarea><hr/>
+8x8に分割されるタイルセット画像：<input id="FILE" type="file"><br/>
 <img id="OIMG" width="512" height="512">
 <script >
 const vsrc=`attribute vec3 p;void main(){gl_PointSize=32.;gl_Position=vec4(vec3(p),1.);}`;
@@ -69,14 +70,10 @@ const TXT2D=0x0de1,TXT00=0x84c0,FRGBA=0x1908,FLUMI=0x1909,FALPH=0x1906;
 const TYPUB=0x1401;
 const MAGFT=0x2800,MINFT=0x2801,NEARE=0x2600,LINEA=0x2601,NEMNE=0x2700;
 const WRAPS=0x2802,WRAPT=0x2803,REPET=0x2901,CLAMP=0x812F,REPEM=0x8370;
-sett=function (g, p, data, size=0){
-	g.bindTexture(TXT2D, g.createTexture());setfTx(g,NEARE);setwTx(g,CLAMP);
-	if(size==0){	g.texImage2D(TXT2D,0,FRGBA,FRGBA,TYPUB, data);
-	}else{			g.texImage2D(TXT2D,0,FLUMI,size,size,0,FLUMI,TYPUB, data);
-	}
-	function setfTx(g, mode){g.texParameteri(TXT2D,MINFT,mode);g.texParameteri(TXT2D,MAGFT,mode);}
-	function setwTx(g, mode){g.texParameteri(TXT2D,WRAPS,mode);g.texParameteri(TXT2D,WRAPT,mode);}
-}
+var tx0=cx0.createTexture();
+cx0.activeTexture(TXT00+0);cx0.bindTexture(TXT2D,tx0);setfTx(cx0,NEARE);setwTx(cx0,CLAMP);
+var tx1=cx0.createTexture();
+cx0.activeTexture(TXT00+1);cx0.bindTexture(TXT2D,tx1);setfTx(cx0,NEARE);setwTx(cx0,CLAMP);
 CNVS.style="background-color:black";
 MDIM.value=16;
 const data=`0x00,0x20,0x40,0x60,0x80,0xa0,0xc0,0xe0,0x01,0x21,0x41,0x61,0x81,0xa1,0xc1,0xe1,
@@ -98,23 +95,30 @@ const data=`0x00,0x20,0x40,0x60,0x80,0xa0,0xc0,0xe0,0x01,0x21,0x41,0x61,0x81,0xa
 0x16,0x36,0x56,0x76,0x96,0xb6,0xd6,0xf6,0x17,0x37,0x57,0x77,0x97,0xb7,0xd7,0xf7,
 0x1a,0x3a,0x5a,0x7a,0x9a,0xba,0xda,0xfa,0x1b,0x3b,0x5b,0x7b,0x9b,0xbb,0xdb,0xfb,
 0x1e,0x3e,0x5e,0x7e,0x9e,0xbe,0xde,0xfe,0x1f,0x3f,0x5f,0x7f,0x9f,0xbf,0xdf,0xff,
-`;AREA.value=data;
+`;	AREA.value=data;
 //
 cx0.useProgram(pg0);
 function update(){
-	const TILEDIM=8;
-	cx0.uniform1i(pg0TILEDIM, TILEDIM);	cx0.uniform1i(pg0MAPDIM,  MDIM.value);
-	cx0.uniform1i(pg0map, 0);	cx0.uniform1i(pg0tile, 1);
+	var TILEDIM=8, MAPDIM=MDIM.value;
+	cx0.uniform1i(pg0TILEDIM, TILEDIM);	cx0.uniform1i(pg0MAPDIM, MAPDIM);
 	var map=textToArray(AREA.value);
-	cx0.activeTexture(TXT00+0);	sett(cx0, pg0, map, MDIM.value);
-	cx0.activeTexture(TXT00+1);	sett(cx0, pg0, OIMG);
+	cx0.activeTexture(TXT00+0);{	// 地図データ
+		cx0.uniform1i(pg0map, 0);
+		cx0.texImage2D(TXT2D,0,FLUMI, MAPDIM,MAPDIM, 0,FLUMI,TYPUB, map);
+	}
+	cx0.activeTexture(TXT00+1);{	// タイル画像
+		cx0.uniform1i(pg0tile, 1);
+		cx0.texImage2D(TXT2D,0,FRGBA,FRGBA,TYPUB, OIMG);
+	}
 	draw();
+	function textToArray(text){	return new Uint8Array(text.split(","));}
 }
-function textToArray(text){	return new Uint8Array(text.split(","));}
 const draw=function(){
 	cx0.clearColor(0,.3,0,1);	cx0.clear(COLOB);
 	cx0.drawArrays(5, 0,3);
 };
+function setfTx(g, mode){g.texParameteri(TXT2D,MINFT,mode);g.texParameteri(TXT2D,MAGFT,mode);}
+function setwTx(g, mode){g.texParameteri(TXT2D,WRAPS,mode);g.texParameteri(TXT2D,WRAPT,mode);}
 CNVS.addEventListener("click", update);
 var fr=new FileReader();
 fr.addEventListener("load", function(ev){OIMG.src=ev.target.result});
