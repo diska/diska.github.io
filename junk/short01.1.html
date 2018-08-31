@@ -3,7 +3,7 @@
 <input id="red" type="range" value="0">
 <script>
 const g=document.getElementById("cnvs").getContext("webgl");
-const UI={r:document.getElementById("red"),};
+const UI={};	UI.r=document.getElementById("red");
 const draw=function(){
 	g.clearColor(UI.r.value/100,.2,0,1);	g.clear(0x4000);
 };	draw();
