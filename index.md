@@ -12,6 +12,7 @@
 + [shader editor???](junk/short11.html):[shader editor??(w/img)](junk/short11.1.html)/[shader editor(verbose)](junk/short03.3.html)
 + [normal??](junk/short10.html)([white](junk/short10.1.html))
 + [tilemap?](tilemaps/mapwebgl.html)
++ [9faces](face/index.html)
 
 [repos](https://github.com/diska/diska.github.io)
 

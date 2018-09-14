@@ -1,0 +1,60 @@
+<h1>Face</h1>
+<canvas id="CNVS" width="256" height="256"></canvas><hr/>
+<script>
+var cx=CNVS.getContext("webgl");cx.enable(cx.SCISSOR_TEST);
+const face=`・・・・・・・｜・・・・・・・｜・・・・・・・
+＃＃＃・＃＃＃｜・＃・・・＃・｜・＃・・・＃・
+・＃・・・＃・｜＃・＃・＃・＃｜＃・＃・＃・＃
+・・・・・・・｜・・・・・・・｜・＃・・・＃・
+・・・・・・・｜・＃・・・＃・｜・・＃＃＃・・
+・＃＃＃＃＃・｜・・＃＃＃・・｜・＃・・・＃・
+・・・・・・・｜・・・・・・・｜・・＃＃＃・・
+―――――――――――――――――――――――
+・・・・・・・｜・・・・・・・｜・・・・・・・
+・＃・＃＃・・｜・＃＃・＃＃・｜・・＃＃・＃・
+・＃・＃・・・｜・・＃・＃・・｜・・・＃・＃・
+・・・・・・・｜・・・・・・・｜・・・・・・・
+・・・・・・・｜・・・・・・・｜・・・・・・・
+・・＃＃＃・・｜・・＃＃＃・・｜・・＃＃＃・・
+・・・・・・・｜・・・・・・・｜・・・・・・・
+―――――――――――――――――――――――
+・・・・・・・｜・・・・・・・｜・・・・・・・
+・＃・・・＃・｜・・・・・・・｜・＃・・・＃・
+・・＃・＃・・｜・＃＃・＃＃・｜・・＃・＃・・
+・＃・・・＃・｜・・・・・・・｜・・・・・・・
+・・・・・・・｜・・・・・・・｜・・・・・・・
+・・＃＃＃・・｜・・＃＃＃・・｜・・＃＃＃・・
+・・・・・・・｜・・・・・・・｜・・・・・・・
+―――――――――――――――――――――――
+`;
+CNVS.addEventListener("click", sense);
+function sense(ev){
+	var dim={x:ev.target.width,y:ev.target.height};
+	var pos={x:ev.clientX-ev.target.offsetLeft,y:ev.clientY-ev.target.offsetTop};
+	var input={x:pos.x/dim.x,y:pos.y/dim.y};
+	move(input);
+}
+function move(input){
+	if(0.0<=input.x&&input.x<0.3&&0.0<=input.y&&input.y<0.3)draw(0);
+	if(0.3<=input.x&&input.x<0.7&&0.0<=input.y&&input.y<0.3)draw(1);
+	if(0.7<=input.x&&input.x<1.0&&0.0<=input.y&&input.y<0.3)draw(2);
+	if(0.0<=input.x&&input.x<0.3&&0.3<=input.y&&input.y<0.7)draw(3);
+	if(0.3<=input.x&&input.x<0.7&&0.3<=input.y&&input.y<0.7)draw(4);
+	if(0.7<=input.x&&input.x<1.0&&0.3<=input.y&&input.y<0.7)draw(5);
+	if(0.0<=input.x&&input.x<0.3&&0.7<=input.y&&input.y<1.0)draw(6);
+	if(0.3<=input.x&&input.x<0.7&&0.7<=input.y&&input.y<1.0)draw(7);
+	if(0.7<=input.x&&input.x<1.0&&0.7<=input.y&&input.y<1.0)draw(8);
+}
+function draw(n){
+	for(var j=0; j<8; j++)for(var i=0; i<8; i++){
+		cx.clearColor(0, getC(n, i, j), 0, 1);
+		var x=i, y=j;
+		cx.scissor(x*256/8,(7-y)*256/8, 256/8,256/8);	cx.clear(0x4000);
+	}
+	function getC(n, i, j){
+		var x=parseInt(n%3)*8+i, y=parseInt(n/3)*8+j;
+		var c=face[y*24+x]=='＃'?1:0;
+		return c;
+	}
+}	draw(4);
+</script>
