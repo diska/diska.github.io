@@ -1,44 +1,47 @@
 <h1>vertices</h1>
-<input id="SLID" type="range" min="1" max="21" value="10"><input id="TEXT">
+<input id="SLID" type="range" min="10" max="22" value="15"><input id="TEXT">
 <canvas id="CNVS" width="1024" height="1024"></canvas><hr/>
 <script>
-const vs=`attribute vec4 a;uniform float vt;
+const vs=`attribute vec3 a;uniform float vt;
+vec2 move(vec3 a, float m){
+	vec2 pos=a.xy;// /1.414;
+	float rand=a.z, time=m;
+	float th=time*rand;// /length(pos);
+	pos.xy*=mat2(cos(th),-sin(th),sin(th),cos(th));
+	return vec2(pos.xy);
+}
 void main(){
 	gl_PointSize=1.0;
-	float th=vt*a.z/2.0;
-	gl_Position=a;
-	gl_Position.xy*=mat2(cos(th),-sin(th),sin(th),cos(th));
-//	gl_Position.xy*=sin(vt/5.)+1.;
+	gl_Position=vec4(move(a, vt), 0,1);
 }`;
-const fs=`precision highp float;uniform float ft;
+const fs=`precision highp float;
 void main(){
-	gl_FragColor.rgb=vec3(.3,.6,.4);gl_FragColor.a=1.0;
+	gl_FragColor.rgba=vec4(.3,.6,.4, 1.0);
 }`;
 const getp=function(g, vsrc,fsrc){
-	var vs=g.createShader(g.VERTEX_SHADER);g.shaderSource(vs,vsrc);
-	var fs=g.createShader(g.FRAGMENT_SHADER);g.shaderSource(fs,fsrc);
-	g.compileShader(vs);console.log(`vs:${g.getShaderInfoLog(vs)}`);
-	g.compileShader(fs);console.log(`fs:${g.getShaderInfoLog(fs)}`);
-	var p=g.createProgram();g.attachShader(p, vs);g.attachShader(p, fs);
-	g.linkProgram(p);console.log(`link:${g.getProgramInfoLog(p)}`);
+	var vs=cx.createShader(cx.VERTEX_SHADER);cx.shaderSource(vs,vsrc);
+	var fs=cx.createShader(cx.FRAGMENT_SHADER);cx.shaderSource(fs,fsrc);
+	cx.compileShader(vs);console.log(`vs:${cx.getShaderInfoLog(vs)}`);
+	cx.compileShader(fs);console.log(`fs:${cx.getShaderInfoLog(fs)}`);
+	var p=cx.createProgram();cx.attachShader(p, vs);cx.attachShader(p, fs);
+	cx.linkProgram(p);console.log(`link:${cx.getProgramInfoLog(p)}`);
 	return p;
 }
-const g=CNVS.getContext("webgl"), p=getp(g, vs,fs); g.useProgram(p);
-g.enableVertexAttribArray(0);
-const num=Math.pow(2,21);console.log(num);
-var data=new Float32Array(num*3);for(var i=0;i<num*3;i++)data[i]=Math.random()*2;
-var bf0=g.createBuffer(); g.bindBuffer(g.ARRAY_BUFFER, bf0);
-g.bufferData(g.ARRAY_BUFFER, data, g.STATIC_DRAW);
-g.vertexAttribPointer(0,3,g.FLOAT,false,0,0);
-g.bindBuffer(g.ARRAY_BUFFER, null);
-var uvt=g.getUniformLocation(p,"vt");
-var uft=g.getUniformLocation(p,"ft");
+var cx=CNVS.getContext("webgl"), p=getp(cx, vs,fs); cx.useProgram(p);
+cx.enableVertexAttribArray(0);
+const num=Math.pow(2,22);console.log(num);
+var data=new Float32Array(num*3);for(var i=0;i<num*3;i++)data[i]=Math.random();
+var bf0=cx.createBuffer(); cx.bindBuffer(cx.ARRAY_BUFFER, bf0);
+cx.bufferData(cx.ARRAY_BUFFER, data, cx.STATIC_DRAW);
+cx.vertexAttribPointer(0,3,cx.FLOAT,false,0,0);
+cx.bindBuffer(cx.ARRAY_BUFFER, null);
+var uvt=cx.getUniformLocation(p,"vt");
 var time;
 const draw=function(now){
 	time=now/1000;	TEXT.value=Math.pow(2,parseInt(SLID.value));
-	g.uniform1f(uvt, time);	g.uniform1f(uft, time);
-	g.clearColor(0.2,0.2,0.3,1);	g.clear(0x4000);
-	g.drawArrays(0, 0,Math.pow(2,parseInt(SLID.value)));
+	cx.uniform1f(uvt, time);
+	cx.clearColor(0.1,0.1,0.2, 1);	cx.clear(0x4000);
+	cx.drawArrays(0, 0,Math.pow(2,parseInt(SLID.value)));
 	requestAnimationFrame(draw);
 };	requestAnimationFrame(draw);
 </script>
