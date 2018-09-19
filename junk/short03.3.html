@@ -1,59 +1,63 @@
 <h1>Verbose Shader Editor (GLSL/WebGLShader/WebGLProgram</h1>
-<hr/><canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
-<textarea id="vs" cols="40" rows="10"></textarea>
-<textarea id="fs" cols="40" rows="10"></textarea><hr/>
-<input id="run" type="button" value="run"><br/>
-<textarea id="log" cols="80" rows="30"></textarea>
+<hr/><canvas id="CNVS" width="256" height="256"></canvas><hr/>
+<textarea id="VS" cols="40" rows="10"></textarea>
+<textarea id="FS" cols="40" rows="10"></textarea><hr/>
+<input id="RUN" type="button" value="run"><br/>
+<textarea id="LOG" cols="80" rows="20"></textarea>
 <style>textarea{background-color:palegoldenrod;-moz-tab-size:4;tab-size:4}</style>
 <script>
-const getp=function(g, vssrc,fssrc){
+function getp(cx, vssrc,fssrc){
 	log(" /* VERTEX_SHADER */\n");
-	var vss=cs(g.VERTEX_SHADER, vssrc);
+	var vss=cs(cx.VERTEX_SHADER, vssrc);
 	log("ねんじろ！\n・・・VERTEX_SHADER　が　コンパイルできました。\n\n");
 	log(" /* FRAGMENT_SHADER */\n");
-	var fss=cs(g.FRAGMENT_SHADER, fssrc);
+	var fss=cs(cx.FRAGMENT_SHADER, fssrc);
 	log("ねんじろ！\n・・・FRAGMENT_SHADER　が　コンパイルできました。\n\n");
 	log("/* プログラム */\n");
-	var p=g.createProgram();	log("生成 - ");
-	g.attachShader(p, vss);	log("アタッチ(VERTEX_SHADER) - ");
-	g.attachShader(p, fss);	log("アタッチ(FRAGMENT_SHADER) - ");
-	g.linkProgram(p);	log("リンク("+g.getProgramParameter(p, g.LINK_STATUS)+")！\n");
-	if(g.getProgramParameter(p, g.LINK_STATUS)){
+	var p=cx.createProgram();	log("生成 - ");
+	cx.attachShader(p, vss);	log("アタッチ(VERTEX_SHADER) - ");
+	cx.attachShader(p, fss);	log("アタッチ(FRAGMENT_SHADER) - ");
+	cx.linkProgram(p);	log("リンク("+cx.getProgramParameter(p, cx.LINK_STATUS)+")！\n");
+	if(cx.getProgramParameter(p, cx.LINK_STATUS)){
 		log("\nVERTEX_SHADERとFRAGMENT_SHADER　は　プログラムにリンクされました。\n\n");
 		return p;
 	}else{
-		var str=g.getProgramInfoLog(p);	g.deleteProgram(p);	throw str;
+		var str=cx.getProgramInfoLog(p);	cx.deleteProgram(p);	throw str;
 	}
 	function cs(t, src){
-		var s=g.createShader(t);	log("生成 - ");
-		g.shaderSource(s, src);		log("ソース投入 - ");
-		g.compileShader(s);
-		log("コンパイル("+g.getShaderParameter(s, g.COMPILE_STATUS)+") - ");
-		if(g.getShaderParameter(s, g.COMPILE_STATUS)){
+		var s=cx.createShader(t);	log("生成 - ");
+		cx.shaderSource(s, src);	log("ソース投入 - ");
+		cx.compileShader(s);
+		log("コンパイル("+cx.getShaderParameter(s, cx.COMPILE_STATUS)+") - ");
+		if(cx.getShaderParameter(s, cx.COMPILE_STATUS)){
 			return s;
 		}else{
-			var str=g.getShaderInfoLog(s);	g.deleteShader(s);	throw str;
+			var str=cx.getShaderInfoLog(s);	cx.deleteShader(s);	throw str;
 		}
 	}
 }
 const vs=`/* VERTEX_SHADER */
-attribute vec4 a;\nvoid main(){\n\tgl_PointSize=float(64);\n\tgl_Position=a;\n}`;
+attribute vec4 a;
+void main(){
+	gl_PointSize=float(64);
+	gl_Position=a;
+}`;
 const fs=`/* FRAGMENT_SHADER */
-void main(){\n\tgl_FragColor.rgba=vec4(gl_PointCoord.x,1,0,1);\n}`;
-const g=document.getElementById("cnvs").getContext("webgl");
-const UI={};UI.log=document.getElementById("log");
-UI.vs=document.getElementById("vs");UI.fs=document.getElementById("fs");
-UI.run=document.getElementById("run");
-UI.vs.value=vs;	UI.fs.value=fs;
+void main(){
+	gl_FragColor.rgba=vec4(0,0,0,1);
+	gl_FragColor.rg=gl_PointCoord.xy;
+}`;
+VS.value=vs;	FS.value=fs;
+var cx=CNVS.getContext("webgl");
 var p;
-const draw=function(){
+function draw(){
+	LOG.value="";
 	try{
-		p=getp(g, UI.vs.value,UI.fs.value); g.useProgram(p);
-		g.clearColor(0,.3,0,1);	g.clear(g.COLOR_BUFFER_BIT);
-		g.drawArrays(g.POINTS, 0, 1);
+		p=getp(cx, VS.value,FS.value); cx.useProgram(p);
+		cx.clearColor(0,.3,0,1);	cx.clear(0x4000);
+		cx.drawArrays(cx.POINTS, 0, 1);
 	}catch(e){log("おおっと！！\n\nWebGL　は　こういっている\n「"+e+"」")}
 };
-function run(){	UI.log.value="";draw();}
-UI.run.addEventListener("click", run);
-function log(str){	UI.log.value+=str;}
+RUN.addEventListener("click", draw);
+function log(str){	LOG.value+=str;}
 </script>

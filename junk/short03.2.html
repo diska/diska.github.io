@@ -27,8 +27,8 @@ if(!cx0.getShaderParameter(vs0, CSTAT)||!cx0.getShaderParameter(fs0, CSTAT)
 	||!cx0.getProgramParameter(pg0, LSTAT))console.log(errlog);
 //
 cx0.useProgram(pg0);
-const pg0t=cx0.getUniformLocation(pg0,"t");
-const draw=function(now){
+var pg0t=cx0.getUniformLocation(pg0,"t");
+function draw(now){
 	cx0.uniform1f(pg0t,now/1000);
 	cx0.clearColor(0,.3,0,1);	cx0.clear(cx0.COLOR_BUFFER_BIT);
 	cx0.drawArrays(cx0.POINTS, 0, 32);
