@@ -1,0 +1,35 @@
+<canvas id="CNVS" width="300" height="300"></canvas>
+<script>
+const vsrc1=`attribute vec4 aPosi;uniform mat4 uMvpm;
+void main(void){gl_Position=aPosi*uMvpm;}`;
+const fsrc1=`void main(void){gl_FragColor=vec4(1);}`;
+var gl=CNVS.getContext("webgl");
+var pg0=getp(gl, vsrc1, fsrc1);
+const data=new Float32Array([0,1, 1,0, -1,0]);
+var bf0=gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, bf0);{
+	gl.enableVertexAttribArray(0);
+	gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+	gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+};	gl.bindBuffer(gl.ARRAY_BUFFER, null);
+var uMvpm=gl.getUniformLocation(pg0, "uMvpm");
+gl.useProgram(pg0);
+var mvpm=[1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
+function update(now){
+	var theta=now/1000, c=Math.cos(theta), s=Math.sin(theta);
+	mvpm[0]=c,mvpm[2]=-s,mvpm[8]=s,mvpm[10]=c,mvpm[15]=2;
+	gl.uniformMatrix4fv(uMvpm, false, mvpm);
+	gl.clearColor(0,0,0, 1);	gl.clear(0x4000);
+	gl.drawArrays(5, 0,3);
+	requestAnimationFrame(update);
+};	requestAnimationFrame(update);
+function getp(g, vsrc,fsrc){
+	var vs=g.createShader(g.VERTEX_SHADER);g.shaderSource(vs,vsrc);
+	var fs=g.createShader(g.FRAGMENT_SHADER);g.shaderSource(fs,fsrc);
+	g.compileShader(vs);console.log(`vs:${g.getShaderInfoLog(vs)}`);
+	g.compileShader(fs);console.log(`fs:${g.getShaderInfoLog(fs)}`);
+	var p=g.createProgram();g.attachShader(p, vs);g.attachShader(p, fs);
+	g.linkProgram(p);console.log(`link:${g.getProgramInfoLog(p)}`);
+	return p;
+}
+</script>
