@@ -1,0 +1,23 @@
+<style>*{background-color:#9cc;}</style>
+<canvas id="CNVS" width="256" height="256"></canvas><hr/>
+<h3>WebGLRenderingContext:scissor 1*1</h3>
+<script>
+var cx=CNVS.getContext("webgl");cx.enable(cx.SCISSOR_TEST);
+var counter=60;
+function draw(){
+	var r=0, g=0, b=0, a=1;
+	requestAnimationFrame(draw);if(counter++<20){return;}
+	counter=0;
+	for(i=0; i<256*256; i++){
+		var x=i%256, y=parseInt(i/256);
+		r=x/256*Math.random();
+		g=y/256;
+		if((x*x+y*y<256*256)&&(x*x+y*y>128*128)){b=1;}else{b=0;}
+		var x1=x/256*6.28, y1=y/256*2-1;
+		if((y1>Math.sin(x1)-4/256)&&(y1<=Math.sin(x1)+4/256)){
+			r=1,g=1,b=1;
+		}
+		cx.scissor(x,y, 1,1);cx.clearColor(r,g,b, a);cx.clear(0x4000);
+	}
+}	requestAnimationFrame(draw);
+</script>
