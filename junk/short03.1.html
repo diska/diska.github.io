@@ -1,30 +1,23 @@
 <h1>uniform</h1>
-<hr/><canvas id="cnvs" width="256px" height="256px"></canvas><hr/>
-<input id="size" type="range" value="64">
+<hr/><canvas id="CNVS" width="256px" height="256px"></canvas><hr/>
+<input id="SIZE" type="range" value="64">
 <script>
-const getp=function(cx, src){
-	const FS=cx.FRAGMENT_SHADER,VS=cx.VERTEX_SHADER;
-	const CS=cx.COMPILE_STATUS, LS=cx.LINK_STATUS;
-	var p=cx.createProgram();
-	cx.attachShader(p, cs(VS, src[0]));	cx.attachShader(p, cs(FS, src[1]));
-	cx.linkProgram(p);	console.log("Link:"+cx.getProgramInfoLog(p));
-	if(cx.getProgramParameter(p, LS)){return p;}else{cx.deleteProgram(p);}
-	function cs(t, src){
-		var s=cx.createShader(t);	cx.shaderSource(s, src);
-		cx.compileShader(s);
-		console.log("Shader"+t+":\n"+src+"\nCompile:"+cx.getShaderInfoLog(s));
-		if(cx.getShaderParameter(s, CS)){return s}else{cx.deleteShader(s);}
-	}
-}
-const vs=`uniform float sz;attribute vec4 a;void main(){gl_PointSize=float(sz);gl_Position=a;}`;
-const fs=`void main(){gl_FragColor.rgba=vec4(gl_PointCoord.x,1,0,1);}`;
-const cx=document.getElementById("cnvs").getContext("webgl");
-const p=getp(cx, [vs,fs]); cx.useProgram(p);
-const UI={	size:document.getElementById("size"),};
-const draw=function(){
-	cx.uniform1f(cx.getUniformLocation(p, "sz"), UI.size.value);
-	cx.clearColor(0,.3,0,1);	cx.clear(cx.COLOR_BUFFER_BIT);
-	cx.drawArrays(cx.POINTS, 0, 1);
+const vsrc=`uniform float sz;attribute vec4 a;
+void main(){gl_PointSize=sz;gl_Position=a;}`;
+const fsrc=`void main(){gl_FragColor.rgba=vec4(1,gl_PointCoord.y,0,1);}`;
+var cx=CNVS.getContext("webgl");
+var vs=cx.createShader(cx.VERTEX_SHADER);	cx.shaderSource(vs, vsrc);
+var fs=cx.createShader(cx.FRAGMENT_SHADER);	cx.shaderSource(fs, fsrc);
+var pg=cx.createProgram();cx.attachShader(pg, vs);cx.attachShader(pg, fs);
+cx.compileShader(vs);	console.log(`vs:${cx.getShaderInfoLog(vs)}`);
+cx.compileShader(fs);	console.log(`fs:${cx.getShaderInfoLog(fs)}`);
+cx.linkProgram(pg);		console.log(`pg:${cx.getProgramInfoLog(pg)}`);
+cx.useProgram(pg);
+var pgsz=cx.getUniformLocation(pg, "sz")
+function draw(){
+	cx.uniform1f(pgsz, SIZE.value);
+	cx.clearColor(0,.3,0, 1);	cx.clear(0x4000);
+	cx.drawArrays(0, 0,1);
 };	draw();
-UI.size.addEventListener("input", draw);
+SIZE.addEventListener("input", draw);
 </script>

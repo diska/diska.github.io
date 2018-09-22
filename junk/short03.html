@@ -1,26 +1,18 @@
 <h1>GLSL/WebGLShader/WebGLProgram</h1>
-<hr/><canvas id="CNVS" width="256px" height="256px"></canvas><hr/>
+<hr/><canvas id="CNVS" width="256" height="256"></canvas><hr/>
 <script>
-function getp(cx, src){
-	const FS=cx.FRAGMENT_SHADER,VS=cx.VERTEX_SHADER;
-	const CS=cx.COMPILE_STATUS, LS=cx.LINK_STATUS;
-	var p=cx.createProgram();
-	cx.attachShader(p, cs(VS, src[0]));	cx.attachShader(p, cs(FS, src[1]));
-	cx.linkProgram(p);	console.log("Link:"+cx.getProgramInfoLog(p));
-	if(cx.getProgramParameter(p, LS)){return p;}else{cx.deleteProgram(p);}
-	function cs(t, src){
-		var s=cx.createShader(t);	cx.shaderSource(s, src);
-		cx.compileShader(s);
-		console.log("Shader"+t+":\n"+src+"\nCompile:"+cx.getShaderInfoLog(s));
-		if(cx.getShaderParameter(s, CS)){return s}else{cx.deleteShader(s);}
-	}
-}
-const vs=`attribute vec4 a;void main(){gl_PointSize=float(64);gl_Position=a;}`;
-const fs=`void main(){gl_FragColor.rgba=vec4(gl_PointCoord.x,1,0,1);}`;
+const vsrc=`attribute vec4 a;void main(){gl_PointSize=64.;gl_Position=a;}`;
+const fsrc=`void main(){gl_FragColor.rgba=vec4(gl_PointCoord.xy,0,1);}`;
 var cx=CNVS.getContext("webgl");
-var p=getp(cx, [vs,fs]); cx.useProgram(p);
+var vs=cx.createShader(cx.VERTEX_SHADER);	cx.shaderSource(vs, vsrc);
+var fs=cx.createShader(cx.FRAGMENT_SHADER);	cx.shaderSource(fs, fsrc);
+var pg=cx.createProgram();	cx.attachShader(pg, vs);cx.attachShader(pg, fs);
+cx.compileShader(vs);	console.log(`vs:${cx.getShaderInfoLog(vs)}`);
+cx.compileShader(fs);	console.log(`fs:${cx.getShaderInfoLog(fs)}`);
+cx.linkProgram(pg);		console.log(`pg:${cx.getProgramInfoLog(pg)}`);
+cx.useProgram(pg);
 function draw(){
-	cx.clearColor(0,.3,0,1);	cx.clear(cx.COLOR_BUFFER_BIT);
-	cx.drawArrays(cx.POINTS, 0, 1);
+	cx.clearColor(0,.3,0, 1);	cx.clear(0x4000);
+	cx.drawArrays(0, 0,1);
 };	draw();
 </script>
