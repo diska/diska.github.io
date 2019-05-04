@@ -1,5 +1,5 @@
 <h1>program as class</h1>
-<hr/><canvas id="canvas" width="256px" height="256px"></canvas><hr/>
+<hr/><canvas id="canvas" width="256" height="256"></canvas><hr/>
 <script>
 const vsrc1=`attribute vec4 aPosi;uniform mat4 uMvpm;
 void main(void){gl_Position=aPosi*uMvpm;gl_PointSize=32./(2.-gl_Position.z);}`;
